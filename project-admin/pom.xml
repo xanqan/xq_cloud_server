@@ -18,11 +18,11 @@
     </parent>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.xanqan.project</groupId>-->
-<!--            <artifactId>mall-mbg</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.xanqan.project</groupId>
+            <artifactId>project-mbg</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.xanqan.mall</groupId>-->
 <!--            <artifactId>mall-security</artifactId>-->

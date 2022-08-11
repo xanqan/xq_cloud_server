@@ -7,16 +7,23 @@ package com.xanqan.project.common;
  */
 public interface IErrorCode {
     /**
-     * 返回码
+     * 状态码
      *
-     * @return 返回码
+     * @return 状态码
      */
-    long getCode();
+    int getCode();
 
     /**
-     * 返回信息
+     * 状态码信息
      *
-     * @return 返回信息
+     * @return 状态码信息
      */
     String getMessage();
+
+    /**
+     *  状态码描述（详情）
+     *
+     *  @return （详情）
+     */
+    String getDescription();
 }

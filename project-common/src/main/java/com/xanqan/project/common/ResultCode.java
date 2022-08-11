@@ -7,24 +7,35 @@ package com.xanqan.project.common;
  */
 public enum ResultCode implements IErrorCode{
     /**
-     * 返回码
+     * 状态码
      */
-    SUCCESS(200, "操作成功"),
-    FAILED(500, "操作失败"),
-    VALIDATE_FAILED(404, "参数检验失败"),
-    UNAUTHORIZED(401, "暂未登录或token已经过期"),
-    FORBIDDEN(403, "没有相关权限");
+    SUCCESS(200, "操作成功", ""),
+    FAILED(40500, "操作失败", ""),
+    PARAMS_ERROR(40401, "请求参数错误", ""),
+    NOT_LOGIN(40402, "暂未登录或token已经过期", ""),
+    NO_AUTH(40403, "没有相关权限", ""),
+    SYSTEM_ERROR(50000, "系统内部异常", "");
 
-    private long code;
-    private String message;
+    private final int code;
 
-    ResultCode(long code, String message) {
+    /**
+     * 状态码信息
+     */
+    private final String message;
+
+    /**
+     * 状态码描述（详情）
+     */
+    private final String description;
+
+    ResultCode(int code, String message, String description) {
         this.code = code;
         this.message = message;
+        this.description = description;
     }
 
     @Override
-    public long getCode() {
+    public int getCode() {
         return code;
     }
 
@@ -32,4 +43,9 @@ public enum ResultCode implements IErrorCode{
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String getDescription() {
+        return description;
+    };
 }
