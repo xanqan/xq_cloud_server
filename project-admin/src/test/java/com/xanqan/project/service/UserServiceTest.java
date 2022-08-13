@@ -23,7 +23,8 @@ public class UserServiceTest {
     public void testAddUser() {
         User user = new User();
         user.setUserName("demo");
-        boolean result = userService.save(user);
+        user.setPassword("123456");
+        int result = userService.userRegister(user.getUserName(), user.getPassword());
         log.info("result = " + result);
     }
 }
