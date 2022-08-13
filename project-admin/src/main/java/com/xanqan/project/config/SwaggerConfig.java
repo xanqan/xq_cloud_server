@@ -7,9 +7,13 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.Contact;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -23,7 +27,7 @@ public class SwaggerConfig {
     @Bean
     Docket docket() {
         // 设置 swagger的版本
-        return new Docket(DocumentationType.OAS_30)
+        return new Docket(DocumentationType.SWAGGER_2)
                 // 是否开启swagger
                 .enable(swaggerEnabled)
                 // 选择生成接口文档
@@ -33,6 +37,8 @@ public class SwaggerConfig {
                 // 当前包下所有接口都生成
                 .paths(PathSelectors.any())
                 .build()
+                .securitySchemes(securitySchemes())
+                .securityContexts(securityContexts())
                 // 接口文档初始化，也就是设置接口文档的详细信息，
                 .apiInfo(
                         new ApiInfoBuilder()
@@ -45,5 +51,36 @@ public class SwaggerConfig {
                                 .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
                                 .build()
                 );
+    }
+
+    private List<SecurityScheme> securitySchemes() {
+        //设置请求头信息
+        List<SecurityScheme> result = new ArrayList<>();
+        ApiKey apiKey = new ApiKey("Authorization", "Authorization", "header");
+        result.add(apiKey);
+        return result;
+    }
+
+    private List<SecurityContext> securityContexts() {
+        //设置需要登录认证的路径
+        List<SecurityContext> result = new ArrayList<>();
+        result.add(getContextByPath("/brand/.*"));
+        return result;
+    }
+
+    private SecurityContext getContextByPath(String pathRegex) {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.regex(pathRegex))
+                .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        List<SecurityReference> result = new ArrayList<>();
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        result.add(new SecurityReference("Authorization", authorizationScopes));
+        return result;
     }
 }

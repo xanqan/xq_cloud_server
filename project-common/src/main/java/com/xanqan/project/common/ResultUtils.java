@@ -18,6 +18,16 @@ public class ResultUtils {
     }
 
     /**
+     * 成功
+     *
+     * @param data 返回数据
+     * @return 通用返回对象
+     */
+    public static <T> BaseResponse<T> success(String description,T data) {
+        return new BaseResponse<>(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMessage(), description, data);
+    }
+
+    /**
      * 失败
      *
      * @param code 状态码返回

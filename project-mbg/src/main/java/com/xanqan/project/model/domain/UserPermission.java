@@ -9,26 +9,31 @@ import lombok.Data;
 
 /**
  * 
- * @TableName user
+ * @TableName user_permission
  */
-@TableName(value ="user")
+@TableName(value ="user_permission")
 @Data
-public class User implements Serializable {
+public class UserPermission implements Serializable {
     /**
-     * id
+     * 
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 用户名
+     * 
      */
-    private String userName;
+    private Integer userId;
 
     /**
-     * 加密密码
+     * 
      */
-    private String password;
+    private Integer permissionId;
+
+    /**
+     *
+     */
+    private String permissionName;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

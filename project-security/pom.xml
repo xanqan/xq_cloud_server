@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>project-common</artifactId>
+    <artifactId>project-security</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>project-common</name>
-    <description>project-common for project</description>
+    <name>project-security</name>
+    <description>project-security for project</description>
 
     <parent>
         <groupId>com.xanqan.project</groupId>
@@ -19,8 +19,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.xanqan.project</groupId>
+            <artifactId>project-mbg</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
         </dependency>
     </dependencies>
 

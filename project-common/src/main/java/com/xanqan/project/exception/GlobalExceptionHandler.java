@@ -4,8 +4,10 @@ import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 /**
  * 全局异常处理器
@@ -20,6 +22,12 @@ public class GlobalExceptionHandler {
     public BaseResponse businessExceptionHandler(BusinessException e) {
         log.error("businessException" + e.getMessage(), e);
         return ResultUtils.error(e.getCode(), e.getMessage(), e.getDescription());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public BaseResponse businessExceptionHandler(AccessDeniedException e) {
+        log.error("runtimeException", e);
+        return ResultUtils.error(ResultCode.NO_AUTH, e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

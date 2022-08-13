@@ -19,3 +19,22 @@ springfox:
   documentation:
     swagger-ui:
       enabled: true
+
+secure:
+  ignored:
+    urls: #安全路径白名单
+      - /swagger-ui/*
+      - /swagger-resources/**
+      - /swagger/**
+      - /**/v2/api-docs
+      - /**/*.js
+      - /**/*.css
+      - /**/*.png
+      - /**/*.ico
+      - /webjars/springfox-swagger-ui/**
+      - /druid/**
+      - /actuator/**
+      - /sso/**
+      - /home/**
+      - /user/login
+      - /user/register

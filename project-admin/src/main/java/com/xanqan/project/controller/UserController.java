@@ -8,10 +8,8 @@ import com.xanqan.project.model.domain.User;
 import com.xanqan.project.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -36,4 +34,26 @@ public class UserController {
         User user = userService.getById(id);
         return ResultUtils.success(user);
     }
+
+    @Operation(summary = "用户注册",description = "")
+    @PostMapping("/register")
+    public BaseResponse<Integer> register(@RequestBody User user) {
+        int result = userService.userRegister(user.getUserName(), user.getPassword());
+        return ResultUtils.success("注册成功", result);
+    }
+
+    @Operation(summary = "用户登录",description = "")
+    @PostMapping("/login")
+    public BaseResponse<String> login(@RequestBody User user) {
+        String token = userService.userLogin(user.getUserName(), user.getPassword());
+        return ResultUtils.success("登录成功", token);
+    }
+
+    @Operation(summary = "权限测试",description = "")
+    @PostMapping("/testPermission")
+    @PreAuthorize("hasAuthority('permission1')")
+    public BaseResponse<String> testPermission() {
+        return ResultUtils.success("权限通过");
+    }
+
 }

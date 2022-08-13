@@ -23,11 +23,11 @@
             <artifactId>project-mbg</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.xanqan.mall</groupId>-->
-<!--            <artifactId>mall-security</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.xanqan.project</groupId>
+            <artifactId>project-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

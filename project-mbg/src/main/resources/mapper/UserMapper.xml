@@ -7,9 +7,10 @@
     <resultMap id="BaseResultMap" type="com.xanqan.project.model.domain.User">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_name
+        id,user_name,password
     </sql>
 </mapper>

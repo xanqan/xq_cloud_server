@@ -8,27 +8,22 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 
- * @TableName user
+ * 权限
+ * @TableName permission
  */
-@TableName(value ="user")
+@TableName(value ="permission")
 @Data
-public class User implements Serializable {
+public class Permission implements Serializable {
     /**
-     * id
+     * 
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 用户名
+     * 权限名称
      */
-    private String userName;
-
-    /**
-     * 加密密码
-     */
-    private String password;
+    private String permissionName;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
