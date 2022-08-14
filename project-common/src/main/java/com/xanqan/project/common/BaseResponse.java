@@ -37,10 +37,6 @@ public class BaseResponse<T> {
         this(code, message, null, data);
     }
 
-    public BaseResponse(int code, T data) {
-        this(code, null, null, data);
-    }
-
     public BaseResponse(int code, String message, String description) {
         this(code, message, description, null);
     }

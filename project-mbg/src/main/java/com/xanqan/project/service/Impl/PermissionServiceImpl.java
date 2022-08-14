@@ -1,4 +1,4 @@
-package com.xanqan.project.service.impl;
+package com.xanqan.project.service.Impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xanqan.project.model.domain.Permission;

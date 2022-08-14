@@ -8,7 +8,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 
+ * 用户权限
  * @TableName user_permission
  */
 @TableName(value ="user_permission")

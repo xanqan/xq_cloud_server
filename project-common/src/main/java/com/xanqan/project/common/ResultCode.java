@@ -47,5 +47,5 @@ public enum ResultCode implements IErrorCode{
     @Override
     public String getDescription() {
         return description;
-    };
+    }
 }

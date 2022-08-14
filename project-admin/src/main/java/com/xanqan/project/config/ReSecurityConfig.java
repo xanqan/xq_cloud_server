@@ -8,14 +8,12 @@ import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.UserSecurity;
 import com.xanqan.project.security.config.SecurityConfig;
-import com.xanqan.project.service.UserPermissionService;
-import com.xanqan.project.service.UserService;
+import com.xanqan.project.service.UserAdminService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -30,8 +28,8 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ReSecurityConfig extends SecurityConfig {
 
-    @Resource
-    private UserService userService;
+    @Resource(name = "userAdminServiceImpl")
+    private UserAdminService userAdminService;
     @Resource
     private UserPermissionMapper userPermissionMapper;
 
@@ -42,7 +40,7 @@ public class ReSecurityConfig extends SecurityConfig {
         return username -> {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("user_name", username);
-            User user = userService.getOne(queryWrapper);
+            User user = userAdminService.getOne(queryWrapper);
             if (user != null) {
                 List<Permission> permissionList = userPermissionMapper.getUserPermissionList(user.getId());
                 return new UserSecurity(user,permissionList);

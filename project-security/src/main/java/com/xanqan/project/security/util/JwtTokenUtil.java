@@ -22,7 +22,7 @@ import java.util.Map;
  * payload的格式（用户id、创建时间、生成时间）：
  * {"sub":"id","created":1489079981393,"exp":1489684781}
  * signature的生成算法：
- ** HMACSHA512(base64UrlEncode(header) + "." +base64UrlEncode(payload),secret)
+ ** HASH512(base64UrlEncode(header) + "." +base64UrlEncode(payload),secret)
  *
  * @author xanqan
  */
@@ -88,7 +88,7 @@ public class JwtTokenUtil {
      * 从token中获取JWT中的负载
      */
     private Claims getClaimsFromToken(String token) {
-        Claims claims = null;
+        Claims claims;
         try {
             claims = Jwts.parser()
                     .setSigningKey(SECRET)

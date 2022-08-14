@@ -16,15 +16,15 @@ import javax.annotation.Resource;
 @Slf4j
 public class UserServiceTest {
 
-    @Resource
-    private UserService userService;
+    @Resource(name = "userAdminServiceImpl")
+    private UserAdminService userAdminService;
 
     @Test
     public void testAddUser() {
         User user = new User();
-        user.setUserName("demo");
+        user.setUserName("demo3");
         user.setPassword("123456");
-        int result = userService.userRegister(user.getUserName(), user.getPassword());
+        int result = userAdminService.userRegister(user.getUserName(), user.getPassword());
         log.info("result = " + result);
     }
 }

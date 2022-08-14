@@ -1,7 +1,6 @@
 package com.xanqan.project.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -15,12 +14,15 @@ import springfox.documentation.spring.web.plugins.Docket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Swagger 配置类
+ *
+ * @author xanqan
+ */
 @Configuration
 public class SwaggerConfig {
 
-    /**
-     * 用于读取配置文件 application.properties 中 swagger 属性是否开启
-     */
+    /** 用于读取配置文件 application.properties 中 swagger 属性是否开启 */
     @Value("${springfox.documentation.swagger-ui.enabled}")
     Boolean swaggerEnabled;
 
@@ -64,14 +66,13 @@ public class SwaggerConfig {
     private List<SecurityContext> securityContexts() {
         //设置需要登录认证的路径
         List<SecurityContext> result = new ArrayList<>();
-        result.add(getContextByPath("/brand/.*"));
+        result.add(getContextByPath());
         return result;
     }
 
-    private SecurityContext getContextByPath(String pathRegex) {
+    private SecurityContext getContextByPath() {
         return SecurityContext.builder()
                 .securityReferences(defaultAuth())
-                .forPaths(PathSelectors.regex(pathRegex))
                 .build();
     }
 

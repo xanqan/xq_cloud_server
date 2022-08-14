@@ -2,19 +2,17 @@ package com.xanqan.project.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
+import com.xanqan.project.mapper.UserMapper;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.security.util.JwtTokenUtil;
-import com.xanqan.project.service.UserService;
-import com.xanqan.project.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.xanqan.project.service.Impl.UserServiceImpl;
+import com.xanqan.project.service.UserAdminService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* @author 28961
-* @description 针对表【user】的数据库操作Service实现
-* @createDate 2022-08-13 14:19:26
-*/
+ * user服务类,mbg模块的重写
+ *
+ * @author xanqan
+ */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-    implements UserService{
-
+public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminService {
     @Resource
     private UserMapper userMapper;
     @Resource
@@ -44,10 +40,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public static final int MIN_USERNAME = 4;
     /** 用户密码最小位数 */
     public static final int MIN_PASSWORD = 6;
-    /** 用户密码加密盐值 */
-    public static final String PASSWORD_SECRET = "asdfgh";
-    /** token负载开头 */
-    private static final String TOKEN_HEAD = "Bearer";
 
     @Override
     public int userRegister(String userName, String password) {
@@ -125,7 +117,3 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
 }
-
-
-
-

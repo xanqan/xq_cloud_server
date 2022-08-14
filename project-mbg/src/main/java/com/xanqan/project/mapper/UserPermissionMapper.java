@@ -15,8 +15,15 @@ import java.util.List;
 * @Entity com.xanqan.project.model.domain.UserPermission
 */
 public interface UserPermissionMapper extends BaseMapper<UserPermission> {
-    @Select("select permission_name from user_permission join permission p on p.id = user_permission.permission_id where user_id = ${user_id}")
-    List<Permission> getUserPermissionList(@Param("user_id") int user_id);
+
+    /**
+     * 根据用户id查询其全部权限名称
+     *
+     * @param userId 用户id
+     * @return 权限名称
+     */
+    @Select("select permission_name from user_permission join permission p on p.id = user_permission.permission_id where user_id = ${userId}")
+    List<Permission> getUserPermissionList(@Param("userId") int userId);
 }
 
 
