@@ -29,6 +29,8 @@
         <druid.version>1.1.23</druid.version>
         <mybatis-plus.version>3.5.1</mybatis-plus.version>
         <jjwt.version>0.9.0</jjwt.version>
+        <mongodb-driver-sync.version>4.0.3</mongodb-driver-sync.version>
+        <spring-data-mongodb.version>3.0.0.RELEASE</spring-data-mongodb.version>
     </properties>
 
     <dependencies>
@@ -73,11 +75,6 @@
             <artifactId>hutool-all</artifactId>
             <version>5.4.0</version>
         </dependency>
-        <!-- MongoDB-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -117,6 +114,17 @@
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
                 <version>${jjwt.version}</version>
+            </dependency>
+            <!-- MongoDB 组件-->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-sync</artifactId>
+                <version>${mongodb-driver-sync.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-mongodb</artifactId>
+                <version>${spring-data-mongodb.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
