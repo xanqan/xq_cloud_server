@@ -12,6 +12,7 @@
     <modules>
         <module>project-admin</module>
         <module>project-common</module>
+        <module>project-mbg</module>
         <module>project-security</module>
     </modules>
 
@@ -72,6 +73,11 @@
             <artifactId>hutool-all</artifactId>
             <version>5.4.0</version>
         </dependency>
+        <!-- MongoDB-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -82,7 +88,7 @@
                 <artifactId>project-common</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
-            <!--Mysql数据库驱动-->
+            <!-- Mysql数据库驱动-->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
@@ -100,13 +106,13 @@
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-            <!--集成druid连接池-->
+            <!-- 集成druid连接池-->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.version}</version>
             </dependency>
-            <!--JWT(Json Web Token)登录支持-->
+            <!-- JWT(Json Web Token)登录支持-->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
