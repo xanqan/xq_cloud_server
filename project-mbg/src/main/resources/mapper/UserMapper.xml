@@ -6,11 +6,25 @@
 
     <resultMap id="BaseResultMap" type="com.xanqan.project.model.domain.User">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="sizeMax" column="size_max" jdbcType="BIGINT"/>
+            <result property="sizeUse" column="size_use" jdbcType="BIGINT"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="lastLogin" column="last_login" jdbcType="TIMESTAMP"/>
+            <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_name,password
+        id,name,password,
+        email,phone,nick_name,
+        avatar,size_max,size_use,
+        status,last_login,modify_time,
+        create_time
     </sql>
 </mapper>

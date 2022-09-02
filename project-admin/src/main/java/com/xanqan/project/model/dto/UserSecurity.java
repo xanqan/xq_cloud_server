@@ -29,8 +29,8 @@ public class UserSecurity implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         //返回当前用户的权限
         return permissionList.stream()
-                .filter(permission -> permission.getPermissionName()!=null)
-                .map(permission ->new SimpleGrantedAuthority(permission.getPermissionName()))
+                .filter(permission -> permission.getName()!=null)
+                .map(permission ->new SimpleGrantedAuthority(permission.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -41,7 +41,7 @@ public class UserSecurity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUserName();
+        return user.getName();
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.mapper.UserMapper;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.security.util.JwtTokenUtil;
-import com.xanqan.project.service.Impl.UserServiceImpl;
 import com.xanqan.project.service.UserAdminService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,7 +73,7 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
 
         // 插入数据
         User user = new User();
-        user.setUserName(userName);
+        user.setName(userName);
         user.setPassword(encodePassword);
         boolean saveResult = this.save(user);
         if (!saveResult) {

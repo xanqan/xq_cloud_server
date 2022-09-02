@@ -8,10 +8,9 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="permissionId" column="permission_id" jdbcType="INTEGER"/>
-            <result property="permissionName" column="permission_name" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,permission_id,permission_name
+        id,user_id,permission_id
     </sql>
 </mapper>

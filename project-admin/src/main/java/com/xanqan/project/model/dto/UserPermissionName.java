@@ -1,20 +1,19 @@
-package com.xanqan.project.model.domain;
+package com.xanqan.project.model.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
- * 权限表
- * @TableName permission
+ * 在 UserPermission 的基础上增加了 PermissionName 字段
+ *
+ * @author xanqan
  */
-@TableName(value ="permission")
 @Data
-public class Permission implements Serializable {
+public class UserPermissionName implements Serializable {
     /**
      * 自增id
      */
@@ -22,19 +21,19 @@ public class Permission implements Serializable {
     private Integer id;
 
     /**
-     * 权限名
+     * 用户id
      */
-    private String name;
+    private Integer userId;
 
     /**
-     * 最后修改时间
+     * 权限id
      */
-    private Date modifyTime;
+    private Integer permissionId;
 
     /**
-     * 创建时间
+     * 权限名字
      */
-    private Date createTime;
+    private Integer permissionName;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

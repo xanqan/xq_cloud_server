@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.mapper.UserPermissionMapper;
+import com.xanqan.project.mapper.UserPermissionNameMapper;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.UserSecurity;
@@ -31,7 +32,7 @@ public class ReSecurityConfig extends SecurityConfig {
     @Resource(name = "userAdminServiceImpl")
     private UserAdminService userAdminService;
     @Resource
-    private UserPermissionMapper userPermissionMapper;
+    private UserPermissionNameMapper userPermissionNameMapper;
 
     @Bean
     @Override
@@ -42,7 +43,7 @@ public class ReSecurityConfig extends SecurityConfig {
             queryWrapper.eq("user_name", username);
             User user = userAdminService.getOne(queryWrapper);
             if (user != null) {
-                List<Permission> permissionList = userPermissionMapper.getUserPermissionList(user.getId());
+                List<Permission> permissionList = userPermissionNameMapper.getUserPermissionNameList(user.getId());
                 return new UserSecurity(user,permissionList);
             }
             throw new BusinessException(ResultCode.PARAMS_ERROR, "用户名或密码错误");

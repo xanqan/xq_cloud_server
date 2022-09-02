@@ -39,20 +39,20 @@ public class UserController {
     @Operation(summary = "用户注册")
     @PostMapping("/register")
     public BaseResponse<Integer> register(@RequestBody User user) {
-        int result = userAdminService.userRegister(user.getUserName(), user.getPassword());
+        int result = userAdminService.userRegister(user.getName(), user.getPassword());
         return ResultUtils.success("注册成功", result);
     }
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
     public BaseResponse<String> login(@RequestBody User user) {
-        String token = userAdminService.userLogin(user.getUserName(), user.getPassword());
+        String token = userAdminService.userLogin(user.getName(), user.getPassword());
         return ResultUtils.success("登录成功", token);
     }
 
     @Operation(summary = "权限测试")
     @PostMapping("/testPermission")
-    @PreAuthorize("hasAuthority('permission1')")
+    @PreAuthorize("hasAnyAuthority('permission1')")
     public BaseResponse<String> testPermission() {
         return ResultUtils.success("权限通过");
     }
