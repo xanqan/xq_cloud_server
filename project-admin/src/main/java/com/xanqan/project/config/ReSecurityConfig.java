@@ -40,7 +40,7 @@ public class ReSecurityConfig extends SecurityConfig {
         //获取登录用户信息
         return username -> {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_name", username);
+            queryWrapper.eq("name", username);
             User user = userAdminService.getOne(queryWrapper);
             if (user != null) {
                 List<Permission> permissionList = userPermissionNameMapper.getUserPermissionNameList(user.getId());

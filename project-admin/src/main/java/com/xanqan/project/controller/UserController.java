@@ -52,7 +52,7 @@ public class UserController {
 
     @Operation(summary = "权限测试")
     @PostMapping("/testPermission")
-    @PreAuthorize("hasAnyAuthority('permission1')")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<String> testPermission() {
         return ResultUtils.success("权限通过");
     }

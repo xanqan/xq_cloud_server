@@ -8,7 +8,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 在 UserPermission 的基础上增加了 PermissionName 字段
+ * mbg模块的 UserPermission 的基础上增加了 PermissionName 字段
  *
  * @author xanqan
  */
