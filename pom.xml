@@ -30,6 +30,7 @@
         <mybatis-plus.version>3.5.1</mybatis-plus.version>
         <jjwt.version>0.9.0</jjwt.version>
         <mongodb-driver-sync.version>4.0.3</mongodb-driver-sync.version>
+        <minio.version>8.0.3</minio.version>
         <spring-data-mongodb.version>3.0.0.RELEASE</spring-data-mongodb.version>
     </properties>
 
@@ -125,6 +126,12 @@
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-mongodb</artifactId>
                 <version>${spring-data-mongodb.version}</version>
+            </dependency>
+            <!-- minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
