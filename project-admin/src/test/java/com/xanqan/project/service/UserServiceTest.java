@@ -1,6 +1,6 @@
 package com.xanqan.project.service;
 
-import com.xanqan.project.mapper.UserPermissionNameMapper;
+import com.xanqan.project.mapper.UserPermissionAdminMapper;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class UserServiceTest {
     private UserAdminService userAdminService;
 
     @Resource
-    private UserPermissionNameMapper userPermissionNameMapper;
+    private UserPermissionAdminMapper userPermissionAdminMapper;
 
     @Test
     public void testAddUser() {
@@ -36,7 +36,7 @@ public class UserServiceTest {
 
     @Test
     public void test() {
-        List<Permission> permissionList = userPermissionNameMapper.getUserPermissionNameList(1);
+        List<Permission> permissionList = userPermissionAdminMapper.getUserPermissionNameList(1);
         log.info("result = " + permissionList.toString());
     }
 }
