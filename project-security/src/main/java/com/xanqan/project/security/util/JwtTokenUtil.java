@@ -7,6 +7,7 @@ import com.xanqan.project.exception.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -33,14 +34,18 @@ public class JwtTokenUtil {
     private static final String CLAIM_KEY_USERNAME = "sub";
     /** 创建时间_key */
     private static final String CLAIM_KEY_CREATED = "created";
-    /** token负载开头 */
-    private static final String TOKEN_HEAD = "Bearer";
-    /** token盐值 */
-    private static final String SECRET = "asdfgh";
-    /** token的超期限时间 */
-    private static final int EXPIRATION = 60 * 60 * 24;
-    /** token的不刷新时间 */
-    private static final int JUST_TIME = 30 * 60;
+
+    @Value("${jwt.tokenHead}")
+    private String tokenHead;
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expireTime}")
+    private int expireTime;
+
+    @Value("${jwt.justTime}")
+    private int justTime;
 
     /**
      * 根据用户信息生成token
@@ -59,7 +64,7 @@ public class JwtTokenUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(generateExpirationDate())
-                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
@@ -67,7 +72,7 @@ public class JwtTokenUtil {
      * 生成token的过期时间
      */
     private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + EXPIRATION * 1000);
+        return new Date(System.currentTimeMillis() + expireTime * 1000L);
     }
 
     /**
@@ -91,7 +96,7 @@ public class JwtTokenUtil {
         Claims claims;
         try {
             claims = Jwts.parser()
-                    .setSigningKey(SECRET)
+                    .setSigningKey(secret)
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
@@ -138,7 +143,7 @@ public class JwtTokenUtil {
         if(StrUtil.isEmpty(oldToken)){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "token为空");
         }
-        String token = oldToken.substring(TOKEN_HEAD.length());
+        String token = oldToken.substring(tokenHead.length());
         if(StrUtil.isEmpty(token)){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "token只有开头");
         }
@@ -165,6 +170,6 @@ public class JwtTokenUtil {
         Date created = claims.get(CLAIM_KEY_CREATED, Date.class);
         Date refreshDate = new Date();
         // 刷新时间在创建时间的指定时间内
-        return refreshDate.after(created) && refreshDate.before(DateUtil.offsetSecond(created, JUST_TIME));
+        return refreshDate.after(created) && refreshDate.before(DateUtil.offsetSecond(created, justTime));
     }
 }

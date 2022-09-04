@@ -25,18 +25,16 @@ public class FileUtil {
         photo.addAll(Arrays.asList(photoType));
     }
 
-    public File read(String objectName, MultipartFile multipartFile) {
+    public File read(String path, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
         String fileSuffix = fileName != null ? fileName.substring(fileName.lastIndexOf(".")) : null;
         if (photo.contains(fileSuffix)) {
-            return readImg(objectName, multipartFile);
+            return readImg(path, multipartFile);
         }
         return null;
     }
 
-
-
-    public File readImg(String objectName, MultipartFile multipartFile) {
+    public File readImg(String path, MultipartFile multipartFile) {
         InputStream in = null;
         File file = new File();
         try {
@@ -45,7 +43,7 @@ public class FileUtil {
             BufferedImage bufferedImage = ImageIO.read(in);
             String size = bufferedImage.getWidth() + "*" + bufferedImage.getHeight();
             file.setName(multipartFile.getOriginalFilename());
-            file.setPath(objectName);
+            file.setPath(path);
             file.setFileSize(fileSize);
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());

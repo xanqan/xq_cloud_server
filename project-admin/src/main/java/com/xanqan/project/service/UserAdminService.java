@@ -1,7 +1,7 @@
 package com.xanqan.project.service;
 
 /**
- * user服务接口类,mbg模块的重写
+ * user服务接口,mbg模块的重写
  *
  * @author xanqan
  */

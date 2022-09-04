@@ -23,7 +23,7 @@ public class MinioUtil {
         try {
             boolean exist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
             if (!exist) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+                this.makeBucket(bucketName);
                 String policy = "{\n" +
                         "    \"Version\": \"2012-10-17\",\n" +
                         "    \"Statement\": [\n" +
@@ -50,13 +50,12 @@ public class MinioUtil {
         }
     }
 
-    public Boolean makeBucket(String bucketName) {
+    public void makeBucket(String bucketName) {
         try {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
-        return true;
     }
 
     public Boolean removeBucket(String bucketName) {
@@ -70,9 +69,9 @@ public class MinioUtil {
         return true;
     }
 
-    public String upload(String bucketName,String objectName ,MultipartFile multipartFile) {
+    public String upload(String bucketName,String path ,MultipartFile multipartFile) {
         existBucket(bucketName);
-        String fileName = objectName + "/" +multipartFile.getOriginalFilename();
+        String fileName = path + "/" +multipartFile.getOriginalFilename();
         InputStream in = null;
         try {
             in = multipartFile.getInputStream();
@@ -94,7 +93,7 @@ public class MinioUtil {
                 }
             }
         }
-        return url+ "/" + bucketName + "/" + fileName;
+        return url+ bucketName + "/" + fileName;
     }
 
 }

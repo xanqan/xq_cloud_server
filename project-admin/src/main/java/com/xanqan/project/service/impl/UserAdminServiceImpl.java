@@ -62,7 +62,7 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
 
         // 账号不能重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_name", userName);
+        queryWrapper.eq("name", userName);
         Long count = userMapper.selectCount(queryWrapper);
         if (count > 0) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "账号重复");

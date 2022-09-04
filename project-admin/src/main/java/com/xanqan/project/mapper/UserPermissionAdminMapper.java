@@ -14,6 +14,12 @@ import java.util.List;
  */
 public interface UserPermissionAdminMapper extends BaseMapper<Permission> {
 
+    /**
+     * 根据用户id获取其全部权限
+     *
+     * @param userId 用户id
+     * @return 权限列表
+     */
     @Select("select p.name from user_permission up join permission p on p.id = up.permission_id where user_id = #{userId}")
     List<Permission> getUserPermissionNameList(@Param("userId") int userId);
 

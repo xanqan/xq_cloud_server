@@ -37,6 +37,13 @@ minio:
   accessKey: minioadmin
   secretKey: minioadmin
 
+jwt:
+  tokenHead: Bearer
+  tokenHeader: Authorization
+  secret: asdfgh
+  expireTime: 86400
+  justTime: 1800
+
 secure:
   ignored:
     urls: #安全路径白名单

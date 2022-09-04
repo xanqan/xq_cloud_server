@@ -15,8 +15,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "minio")
 public class MinIoClientConfig {
+
+    /**
+     * minio 服务器地址
+     */
     private String url;
+
+    /**
+     * minio accessKey
+     */
     private String accessKey;
+
+    /**
+     * minio secretKey
+     */
     private String secretKey;
 
     @Bean
