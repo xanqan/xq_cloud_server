@@ -2,7 +2,7 @@ package com.xanqan.project.controller;
 
 import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultUtils;
-import com.xanqan.project.util.MinioUtil;
+import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,14 +19,14 @@ import javax.annotation.Resource;
 public class FileController {
 
     @Resource
-    private MinioUtil minioUtil;
+    private FileService fileService;
 
     @Operation(summary = "文件上传")
     @PostMapping("/upload")
     public BaseResponse<String> upload(@RequestParam("bucketName") String bucketName,
                                        @RequestParam("objectName") String objectName,
-                                       @RequestParam("file") MultipartFile file) {
-        String upload = minioUtil.upload(bucketName, objectName, file);
-        return ResultUtils.success(upload);
+                                       @RequestParam("file") MultipartFile multipartFile) {
+        String result = fileService.upload(bucketName, objectName, multipartFile);
+        return ResultUtils.success(result);
     }
 }

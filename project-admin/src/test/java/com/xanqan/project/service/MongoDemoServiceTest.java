@@ -25,7 +25,7 @@ class MongoDemoServiceTest {
     @Test
     public void addTest(){
         File file = new File();
-        file.setFileName("demo0");
+        file.setName("demo0");
         File result = mongoTemplate.insert(file, "1");
         log.info("result = " + result);
     }
@@ -48,10 +48,10 @@ class MongoDemoServiceTest {
         Query query_0 = Query.query(Criteria.where("fileName").is("demo0"));
         List<File> fileList = mongoTemplate.find(query_0, File.class,"1");
         File file = new File();
-        file.setFileName("demo1");
+        file.setName("demo1");
         Query query_1 = Query.query(Criteria.where("_id").is(fileList.get(0).getId()));
         Update update = new Update();
-        update.set("fileName",file.getFileName());
+        update.set("fileName",file.getName());
         UpdateResult result = mongoTemplate.upsert(query_1, update, File.class, "1");
         log.info("result = " + result);
     }

@@ -70,18 +70,18 @@ public class MinioUtil {
         return true;
     }
 
-    public String upload(String bucketName,String objectName ,MultipartFile file) {
+    public String upload(String bucketName,String objectName ,MultipartFile multipartFile) {
         existBucket(bucketName);
-        String fileName = objectName + "/" +file.getOriginalFilename();
+        String fileName = objectName + "/" +multipartFile.getOriginalFilename();
         InputStream in = null;
         try {
-            in = file.getInputStream();
+            in = multipartFile.getInputStream();
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(bucketName)
                     .object(fileName)
                     .stream(in, in.available(), -1)
-                    .contentType(file.getContentType())
+                    .contentType(multipartFile.getContentType())
                     .build());
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
