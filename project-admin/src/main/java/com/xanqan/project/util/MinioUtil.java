@@ -3,17 +3,12 @@ package com.xanqan.project.util;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import io.minio.*;
-import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Component
 public class MinioUtil {

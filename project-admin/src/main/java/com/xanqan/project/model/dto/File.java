@@ -64,4 +64,10 @@ public class File {
      */
     @Field("duration")
     private String duration;
+
+    /**
+     * 是否为文件夹
+     */
+    @Field("isFolder")
+    private int isFolder;
 }

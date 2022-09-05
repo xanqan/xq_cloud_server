@@ -48,6 +48,7 @@ public class FileUtil {
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setSize(size);
+            file.setIsFolder(0);
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         } finally {
