@@ -3,12 +3,17 @@ package com.xanqan.project.util;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import io.minio.*;
+import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Component
 public class MinioUtil {
@@ -71,14 +76,14 @@ public class MinioUtil {
 
     public String upload(String bucketName,String path ,MultipartFile multipartFile) {
         existBucket(bucketName);
-        String fileName = path + "/" +multipartFile.getOriginalFilename();
+        String object = path + "/" +multipartFile.getOriginalFilename();
         InputStream in = null;
         try {
             in = multipartFile.getInputStream();
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(bucketName)
-                    .object(fileName)
+                    .object(object)
                     .stream(in, in.available(), -1)
                     .contentType(multipartFile.getContentType())
                     .build());
@@ -93,7 +98,17 @@ public class MinioUtil {
                 }
             }
         }
-        return url+ bucketName + "/" + fileName;
+        return url+ "/"  + bucketName + object;
+    }
+
+    public boolean remove(String bucketName ,String path, String fileName) {
+        String object = path + "/" + fileName;
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(object).build());
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
+        }
+        return true;
     }
 
 }

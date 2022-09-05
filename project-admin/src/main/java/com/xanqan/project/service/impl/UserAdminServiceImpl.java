@@ -54,7 +54,7 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
         }
 
         // 账号不能包含特殊字符
-        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\\\\\[\\\\\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        String validPattern = "[ _`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\n|\r|\t";
         Matcher matcher = Pattern.compile(validPattern).matcher(userName);
         if (matcher.find()) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "账号包含特殊字符");

@@ -19,4 +19,6 @@ public interface FileService {
      * @return 文件的可访问路径
      */
     String upload(String path, MultipartFile multipartFile, HttpServletRequest request);
+
+    boolean remove(String path, String fileName, HttpServletRequest request);
 }
