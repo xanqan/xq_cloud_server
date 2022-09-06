@@ -17,11 +17,11 @@ public interface UserAdminService extends UserService{
 
 
     /**
-     * 用户注册
+     * 用户登录
      *
      * @param userName 用户账户
      * @param password 用户密码
-     * @return 新用户 id
+     * @return token
      */
     String userLogin(String userName, String password);
 }

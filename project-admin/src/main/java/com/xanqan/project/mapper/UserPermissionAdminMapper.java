@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
- * 针对 UserPermissionName 操作
+ * 针对 UserPermissionName 操作, 为 ReSecurityConfig 服务
  *
  * @author xanqan
  */

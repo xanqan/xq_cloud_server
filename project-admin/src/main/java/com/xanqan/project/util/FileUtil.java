@@ -14,6 +14,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 文件信息处理工具类
+ *
+ * @author xanqan
+ */
 @Component
 public class FileUtil {
 
@@ -25,16 +30,23 @@ public class FileUtil {
         photo.addAll(Arrays.asList(photoType));
     }
 
+    /**
+     * 入口方法, 根据文件后缀再调用到对于的方法
+     *
+     * @param path 文件的路径
+     * @param multipartFile 文件封装
+     * @return 处理好的 File
+     */
     public File read(String path, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
         String fileSuffix = fileName != null ? fileName.substring(fileName.lastIndexOf(".")) : null;
         if (photo.contains(fileSuffix)) {
-            return readImg(path, multipartFile);
+            return readPhoto(path, multipartFile);
         }
         return null;
     }
 
-    public File readImg(String path, MultipartFile multipartFile) {
+    private File readPhoto(String path, MultipartFile multipartFile) {
         InputStream in = null;
         File file = new File();
         try {

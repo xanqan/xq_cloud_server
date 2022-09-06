@@ -10,6 +10,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.InputStream;
 
+/**
+ * MinIO 服务封装工具类
+ *
+ * @author xanqan
+ */
 @Component
 public class MinioUtil {
 
@@ -19,6 +24,11 @@ public class MinioUtil {
     @Resource
     private MinioClient minioClient;
 
+    /**
+     * 判断存储桶是否存在，没有则创建并赋予访问规则
+     *
+     * @param bucketName 存储桶名
+     */
     public void existBucket(String bucketName) {
         try {
             boolean exist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
@@ -50,6 +60,11 @@ public class MinioUtil {
         }
     }
 
+    /**
+     * 创建存储桶
+     *
+     * @param bucketName 存储桶名
+     */
     public void makeBucket(String bucketName) {
         try {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
@@ -58,7 +73,13 @@ public class MinioUtil {
         }
     }
 
-    public Boolean removeBucket(String bucketName) {
+    /**
+     * 删除存储桶
+     *
+     * @param bucketName 存储桶名
+     * @return boolean
+     */
+    public boolean removeBucket(String bucketName) {
         try {
             minioClient.removeBucket(RemoveBucketArgs.builder()
                     .bucket(bucketName)
@@ -69,6 +90,14 @@ public class MinioUtil {
         return true;
     }
 
+    /**
+     * 文件上传
+     *
+     * @param bucketName 存储桶名
+     * @param path 文件路径
+     * @param multipartFile 文件封装
+     * @return 文件的可访问路径
+     */
     public String upload(String bucketName,String path ,MultipartFile multipartFile) {
         existBucket(bucketName);
         String object = path + "/" +multipartFile.getOriginalFilename();
@@ -96,6 +125,14 @@ public class MinioUtil {
         return url+ "/"  + bucketName + object;
     }
 
+    /**
+     * 文件删除
+     *
+     * @param bucketName 存储桶名
+     * @param path 文件路径
+     * @param fileName 文件名
+     * @return boolean
+     */
     public boolean remove(String bucketName ,String path, String fileName) {
         String object = path + "/" + fileName;
         try {

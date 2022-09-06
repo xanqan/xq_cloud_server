@@ -39,6 +39,16 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
+    @Operation(summary = "获取文件夹大小")
+    @PostMapping("/getFolderSize")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Long> getFolderSize(@RequestParam("path") String path,
+                                            @RequestParam("folderName") String folderName,
+                                            HttpServletRequest request) {
+        long result = fileService.getFolderSize(path, folderName, request);
+        return ResultUtils.success(result);
+    }
+
     @Operation(summary = "创建文件夹")
     @PostMapping("/createFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")

@@ -104,11 +104,16 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
 
         // 对密码
         UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+        if (!userDetails.isEnabled()) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "用户已禁用");
+        }
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "密码错误");
         }
+        // 更新security登录用户对象
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        // 将authenticationToken放入spring security全局中
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         return jwtTokenUtil.generateToken(userDetails);

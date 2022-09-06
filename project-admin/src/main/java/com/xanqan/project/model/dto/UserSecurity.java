@@ -27,7 +27,7 @@ public class UserSecurity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //返回当前用户的权限
+        //返回当前用户的权限列表
         return permissionList.stream()
                 .filter(permission -> permission.getName()!=null)
                 .map(permission ->new SimpleGrantedAuthority(permission.getName()))
@@ -61,6 +61,6 @@ public class UserSecurity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getStatus() == 1;
     }
 }
