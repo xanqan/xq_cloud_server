@@ -33,7 +33,7 @@ public interface FileService {
     long getFolderSize(String path, String folderName, HttpServletRequest request);
 
     /**
-     * 获取文件夹的总大小
+     * 创建文件夹
      *
      * @param path 路径
      * @param folderName 文件夹名称
@@ -43,7 +43,7 @@ public interface FileService {
     boolean createFolder(String path, String folderName, HttpServletRequest request);
 
     /**
-     * 获取文件夹的总大小
+     * 删除文件夹及其下所有文件
      *
      * @param path 路径
      * @param folderName 文件夹名称
@@ -63,7 +63,7 @@ public interface FileService {
     String upload(String path, MultipartFile multipartFile, HttpServletRequest request);
 
     /**
-     * 文件上传
+     * 文件删除
      *
      * @param path 文件的路径
      * @param fileName 文件名
@@ -71,6 +71,28 @@ public interface FileService {
      * @return 文件的可访问路径
      */
     boolean remove(String path, String fileName, HttpServletRequest request);
+
+    /**
+     * 文件重命名
+     *
+     * @param path 文件的路径
+     * @param oldName 原文件名
+     * @param newName 修改后文件名
+     * @param request 用于获取 token
+     * @return 文件的可访问路径
+     */
+    String reName(String path, String oldName, String newName, HttpServletRequest request);
+
+    /**
+     * 文件移动
+     *
+     * @param oldPath 原文件路径
+     * @param newPath 修改后文件路径
+     * @param fileName 文件名
+     * @param request 用于获取 token
+     * @return 文件的可访问路径
+     */
+    String move(String oldPath, String newPath, String fileName, HttpServletRequest request);
 
 
 

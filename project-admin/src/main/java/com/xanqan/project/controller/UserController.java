@@ -22,8 +22,7 @@ import javax.annotation.Resource;
 @RequestMapping("/user")
 @Api(tags = "User请求处理")
 public class UserController {
-
-    @Resource(name = "userAdminServiceImpl")
+    @Resource
     private UserAdminService userAdminService;
 
     @Operation(summary = "查询用户",description = "根据 id 查询用户")

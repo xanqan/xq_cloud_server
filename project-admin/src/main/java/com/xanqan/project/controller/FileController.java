@@ -88,4 +88,26 @@ public class FileController {
         boolean result = fileService.remove(path, fileName, request);
         return ResultUtils.success(result);
     }
+
+    @Operation(summary = "文件重命名")
+    @PostMapping("/reName")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<String> reName(@RequestParam("path") String path,
+                                       @RequestParam("oldName") String oldName,
+                                       @RequestParam("newName") String newName,
+                                       HttpServletRequest request) {
+        String result = fileService.reName(path, oldName, newName, request);
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "文件移动")
+    @PostMapping("/move")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<String> move(@RequestParam("oldPath") String oldPath,
+                                       @RequestParam("newPath") String newPath,
+                                       @RequestParam("fileName") String fileName,
+                                       HttpServletRequest request) {
+        String result = fileService.move(oldPath, newPath, fileName, request);
+        return ResultUtils.success(result);
+    }
 }

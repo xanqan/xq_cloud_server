@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,32 +44,17 @@ public class FileServiceImpl implements FileService {
     private FileUtil fileUtil;
     @Resource
     private JwtTokenUtil jwtTokenUtil;
-
-    @Resource(name = "userAdminServiceImpl")
+    @Resource
     private UserAdminService userAdminService;
+
     @Value("${jwt.tokenHead}")
     private String tokenHead;
     @Value("${jwt.tokenHeader}")
     private String tokenHeader;
     /** 根目录 */
-    public static final String ROOT_DIRECTORY = "/";
+    private static final String ROOT_DIRECTORY = "/";
     /** 根目录 */
-    public static final String BUCKET_NAME_PREFIX = "xq";
-
-    /**
-     * 由 request 中取出 token 再取出 name 再根据 name 从数据库中取出用户详细信息
-     *
-     * @param request 用于获取 token
-     * @return user
-     */
-    private User getTokenUser(HttpServletRequest request) {
-        String authHeader = request.getHeader(tokenHeader);
-        String authToken = authHeader.substring(tokenHead.length());
-        String userName = jwtTokenUtil.getUserNameFromToken(authToken);
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", userName);
-        return userAdminService.getOne(queryWrapper);
-    }
+    private static final String BUCKET_NAME_PREFIX = "xq";
 
     @Override
     public List<File> getFileList(String path, HttpServletRequest request) {
@@ -81,8 +67,8 @@ public class FileServiceImpl implements FileService {
         User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
+        // 获取路径下全部文件（包括文件夹）
         Query query = Query.query(Criteria.where("path").is(path));
-
         return mongoTemplate.find(query, File.class, bucketName);
     }
 
@@ -97,11 +83,8 @@ public class FileServiceImpl implements FileService {
         User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
-        // 路径加工
-        String folderPath = path + folderName;
-        if (!ROOT_DIRECTORY.equals(path)) {
-            folderPath = path + "/" + folderName;
-        }
+        // 文件夹路径加工
+        String folderPath = this.folderPathProcess(path, folderName);
 
         // 递归搜索路径下的所有文件
         Criteria criteria = new Criteria();
@@ -132,13 +115,7 @@ public class FileServiceImpl implements FileService {
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否重复
-        Query query = Query.query(Criteria.where("path").is(path)
-                .and("name").is(folderName)
-                .and("isFolder").is(1));
-        long count = mongoTemplate.count(query, File.class, bucketName);
-        if (count > 0) {
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹重复");
-        }
+        this.isFolderRepeat(bucketName, path, folderName);
 
         // 新建文件夹
         File file = new File();
@@ -163,11 +140,11 @@ public class FileServiceImpl implements FileService {
         User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
-        // 路径加工
-        String folderPath = path + folderName;
-        if (!ROOT_DIRECTORY.equals(path)) {
-            folderPath = path + "/" + folderName;
-        }
+        // 文件夹路径加工
+        String folderPath = this.folderPathProcess(path, folderName);
+
+        // 验证文件夹是否存在
+        this.isFolderExist(bucketName, folderPath);
 
         // 递归搜索该文件夹下所有文件并用于后面操作
         Criteria criteriaFile = new Criteria();
@@ -214,28 +191,13 @@ public class FileServiceImpl implements FileService {
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否存在
-        if (!ROOT_DIRECTORY.equals(path)) {
-            int i = path.lastIndexOf("/");
-            Query query = Query.query(Criteria.where("path").is(path.substring(0, i))
-                    .and("name").is(path.substring(i + 1))
-                    .and("isFolder").is(1));
-            long count = mongoTemplate.count(query, File.class, bucketName);
-            if (count <= 0) {
-                throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹不存在");
-            }
-        }
+        this.isFolderExist(bucketName, path);
 
         // 文件信息处理
         File file = fileUtil.read(path, multipartFile);
 
         // 验证文件是否重复
-        Query query = Query.query(Criteria.where("path").is(file.getPath())
-                .and("name").is(file.getName())
-                .and("isFolder").is(0));
-        long count = mongoTemplate.count(query, File.class, bucketName);
-        if (count > 0) {
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件重复");
-        }
+        this.isRepeat(bucketName, file.getPath(), file.getName());
 
         // 验证容量
         if (file.getFileSize() + user.getSizeUse() > user.getSizeMax()) {
@@ -274,5 +236,147 @@ public class FileServiceImpl implements FileService {
         user.setSizeUse(user.getSizeUse() - fileList.get(0).getFileSize());
         userAdminService.updateById(user);
         return true;
+    }
+
+    @Override
+    public String reName(String path, String oldName, String newName, HttpServletRequest request) {
+        // 校验
+        if (StrUtil.hasBlank(path, oldName, newName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldName.equals(newName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件名一样");
+        }
+
+        // 用户信息获取
+        User user = this.getTokenUser(request);
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 验证文件是否重复
+        this.isRepeat(bucketName, path, newName);
+
+        //更新文件
+        Query query = Query.query(Criteria.where("path").is(path)
+                .and("name").is(oldName)
+                .and("isFolder").is(0));
+        Update update = Update.update("name", newName);
+
+        String result = minioUtil.copy(bucketName, path, path, oldName, newName);
+        mongoTemplate.updateFirst(query, update, bucketName);
+        return result;
+    }
+
+    @Override
+    public String move(String oldPath, String newPath, String fileName, HttpServletRequest request) {
+        // 校验
+        if (StrUtil.hasBlank(oldPath, newPath, fileName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldPath.equals(newPath)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件名一样");
+        }
+
+        // 用户信息获取
+        User user = this.getTokenUser(request);
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 验证文件夹是否存在
+        this.isFolderExist(bucketName, newPath);
+
+        // 验证文件是否重复
+        this.isRepeat(bucketName, newPath, fileName);
+
+        //更新文件
+        Query query = Query.query(Criteria.where("path").is(oldPath)
+                .and("name").is(fileName)
+                .and("isFolder").is(0));
+        Update update = Update.update("path", newPath);
+
+        String result = minioUtil.copy(bucketName, oldPath, newPath, fileName, fileName);
+        mongoTemplate.updateFirst(query, update, bucketName);
+        return result;
+    }
+
+    /**
+     * 由 request 中取出 token 再取出 name 再根据 name 从数据库中取出用户详细信息
+     *
+     * @param request 用于获取 token
+     * @return user
+     */
+    private User getTokenUser(HttpServletRequest request) {
+        String authHeader = request.getHeader(tokenHeader);
+        String authToken = authHeader.substring(tokenHead.length());
+        String userName = jwtTokenUtil.getUserNameFromToken(authToken);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("name", userName);
+        return userAdminService.getOne(queryWrapper);
+    }
+
+    /**
+     * 文件夹路径加工，用于后续遍历
+     *
+     * @param path 文件夹路径
+     * @param folderName 文件夹名
+     * @return 加工后路径
+     */
+    private String folderPathProcess(String path, String folderName) {
+        String folderPath = path + folderName;
+        if (!ROOT_DIRECTORY.equals(path)) {
+            folderPath = path + "/" + folderName;
+        }
+        return folderPath;
+    }
+
+    /**
+     * 验证文件夹是否存在
+     *
+     * @param bucketName 存储桶名
+     * @param path 文件路径
+     */
+    private void isFolderExist(String bucketName, String path) {
+        if (!ROOT_DIRECTORY.equals(path)) {
+            int i = path.lastIndexOf("/");
+            Query query = Query.query(Criteria.where("path").is(i == 0 ? ROOT_DIRECTORY : path.substring(0, i))
+                    .and("name").is(path.substring(i + 1))
+                    .and("isFolder").is(1));
+            long count = mongoTemplate.count(query, File.class, bucketName);
+            if (count <= 0) {
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹不存在");
+            }
+        }
+    }
+
+    /**
+     * 验证文件夹是否存在
+     *
+     * @param bucketName 存储桶名
+     * @param path 文件夹路径
+     * @param folderName 文件夹名
+     */
+    private void isFolderRepeat(String bucketName, String path, String folderName) {
+        Query query = Query.query(Criteria.where("path").is(path)
+                .and("name").is(folderName)
+                .and("isFolder").is(1));
+        long count = mongoTemplate.count(query, File.class, bucketName);
+        if (count > 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹重复");
+        }
+    }
+
+    /**
+     * 验证文件是否重复
+     *
+     * @param bucketName 存储桶名
+     * @param path 文件路径
+     * @param fileName 文件名
+     */
+    private void isRepeat(String bucketName, String path, String fileName) {
+        Query queryCount = Query.query(Criteria.where("path").is(path)
+                .and("name").is(fileName)
+                .and("isFolder").is(0));
+        long count = mongoTemplate.count(queryCount, File.class, bucketName);
+        if (count > 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件名重复");
+        }
     }
 }

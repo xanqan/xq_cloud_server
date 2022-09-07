@@ -17,12 +17,13 @@ import java.io.InputStream;
  */
 @Component
 public class MinioUtil {
+    @Resource
+    private MinioClient minioClient;
 
     @Value("${minio.url}")
     private String url;
-
-    @Resource
-    private MinioClient minioClient;
+    /** 根目录 */
+    private static final String ROOT_DIRECTORY = "/";
 
     /**
      * 判断存储桶是否存在，没有则创建并赋予访问规则
@@ -141,6 +142,35 @@ public class MinioUtil {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
         return true;
+    }
+
+    /**
+     * 文件移动
+     *
+     * @param bucketName 存储桶名
+     * @param oldPath 原路径
+     * @param newPath 修改后路径
+     * @param oldName 原文件名
+     * @param newName 修改后文件名
+     * @return 文件的可访问路径
+     */
+    public String copy(String bucketName, String oldPath, String newPath, String oldName, String newName) {
+        String oldObject = oldPath + oldName;
+        if (!ROOT_DIRECTORY.equals(oldPath)) {
+            oldObject = oldPath + "/" + oldName;
+        }
+        String newObject = newPath + newName;
+        if (!ROOT_DIRECTORY.equals(newPath)) {
+            newObject = newPath + "/" + newName;
+        }
+        try {
+            CopySource copySource = CopySource.builder().bucket(bucketName).object(oldObject).build();
+            minioClient.copyObject(CopyObjectArgs.builder().bucket(bucketName).object(newObject).source(copySource).build());
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(oldObject).build());
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
+        }
+        return url+ "/"  + bucketName + newObject;
     }
 
 }

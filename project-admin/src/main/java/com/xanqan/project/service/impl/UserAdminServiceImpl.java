@@ -8,6 +8,7 @@ import com.xanqan.project.mapper.UserMapper;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.security.util.JwtTokenUtil;
 import com.xanqan.project.service.UserAdminService;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
  * @author xanqan
  */
 @Service
+@Primary
 public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminService {
     @Resource
     private UserMapper userMapper;
@@ -118,6 +120,5 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
 
         return jwtTokenUtil.generateToken(userDetails);
     }
-
 
 }

@@ -28,7 +28,7 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ReSecurityConfig extends SecurityConfig {
 
-    @Resource(name = "userAdminServiceImpl")
+    @Resource
     private UserAdminService userAdminService;
     @Resource
     private UserPermissionAdminMapper userPermissionAdminMapper;

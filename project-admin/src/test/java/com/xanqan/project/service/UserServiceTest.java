@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class UserServiceTest {
 
-    @Resource(name = "userAdminServiceImpl")
+    @Resource
     private UserAdminService userAdminService;
 
     @Resource

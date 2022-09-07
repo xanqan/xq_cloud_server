@@ -17,7 +17,7 @@ create table user
     avatar      varchar(255)     default ''                null comment '头像',
     size_max    bigint unsigned  default 0                 not null comment '储存空间大小（byte） 0-不限制',
     size_use    bigint unsigned  default 0                 not null comment '已使用大小（byte）',
-    status      tinyint unsigned default 0                 not null comment '用户启用状态 0-未启用 1-启用',
+    status      tinyint unsigned default 1                 not null comment '用户启用状态 0-未启用 1-启用',
     last_login  timestamp                                  null comment '最后登陆时间',
     modify_time timestamp                                  null comment '最后修改时间',
     create_time timestamp        default CURRENT_TIMESTAMP null comment '创建时间',
