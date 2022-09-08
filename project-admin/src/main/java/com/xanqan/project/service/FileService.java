@@ -53,6 +53,17 @@ public interface FileService {
     boolean deleteFolder(String path, String folderName, HttpServletRequest request);
 
     /**
+     * 文件夹重命名
+     *
+     * @param path 文件的路径
+     * @param oldName 原文件夹名
+     * @param newName 修改后文件夹名
+     * @param request 用于获取 token
+     * @return 文件的可访问路径
+     */
+    String reNameFolder(String path, String oldName, String newName, HttpServletRequest request);
+
+    /**
      * 文件上传
      *
      * @param path 文件的路径
@@ -93,14 +104,4 @@ public interface FileService {
      * @return 文件的可访问路径
      */
     String move(String oldPath, String newPath, String fileName, HttpServletRequest request);
-
-
-
-
-
-
-
-
-
-
 }

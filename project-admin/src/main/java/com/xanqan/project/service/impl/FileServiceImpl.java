@@ -1,11 +1,12 @@
 package com.xanqan.project.service.impl;
 
-import java.util.Date;
+import java.util.*;
 
 import com.mongodb.client.result.DeleteResult;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mongodb.client.result.UpdateResult;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
@@ -26,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -146,9 +146,9 @@ public class FileServiceImpl implements FileService {
         // 验证文件夹是否存在
         this.isFolderExist(bucketName, folderPath);
 
+        Pattern pattern = Pattern.compile("^" + folderPath.replace("/", "\\/") + "\\/" + "(.*)");
         // 递归搜索该文件夹下所有文件并用于后面操作
         Criteria criteriaFile = new Criteria();
-        Pattern pattern = Pattern.compile("^" + folderPath.replace("/", "\\/") + "\\/" + "(.*)");
         criteriaFile.orOperator(Criteria.where("path").is(folderPath), Criteria.where("path").regex(pattern))
                 .and("isFolder").is(0);
         Query queryFile = Query.query(criteriaFile);
@@ -160,7 +160,6 @@ public class FileServiceImpl implements FileService {
                 Criteria.where("path").is(path).and("name").is(folderName).and("isFolder").is(1));
         Query query = Query.query(criteria);
         DeleteResult result = mongoTemplate.remove(query, bucketName);
-        mongoTemplate.remove(queryFile, bucketName);
 
         // 删除该文件夹下所有文件和计算其总大小
         long deleteSizeNum = 0;
@@ -174,6 +173,61 @@ public class FileServiceImpl implements FileService {
         userAdminService.updateById(user);
 
         return result.getDeletedCount() > 0;
+    }
+
+    @Override
+    public String reNameFolder(String path, String oldName, String newName, HttpServletRequest request) {
+        // 校验
+        if (StrUtil.hasBlank(path, oldName, newName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldName.equals(newName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹名一样");
+        }
+
+        // 用户信息获取
+        User user = this.getTokenUser(request);
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 文件夹路径加工
+        String oldFolderPath = this.folderPathProcess(path, oldName);
+        String newFolderPath = this.folderPathProcess(path, newName);
+
+        // 验证文件夹是否存在,以及是否重复
+        this.isFolderExist(bucketName, oldFolderPath);
+        this.isFolderRepeat(bucketName, path, newName);
+
+        Pattern pattern = Pattern.compile("^" + oldFolderPath.replace("/", "\\/") + "\\/" + "(.*)");
+        // 递归搜索该文件夹下所有内容后续更新
+        Criteria criteriaAll = new Criteria();
+        criteriaAll.orOperator(Criteria.where("path").is(oldFolderPath), Criteria.where("path").regex(pattern));
+        Query queryAll = Query.query(criteriaAll);
+        List<File> list = mongoTemplate.find(queryAll, File.class, bucketName);
+
+        // 更新该文件夹所有文件的路径
+        Map<String, String> map = new HashMap<>(list.size());
+        for (File file : list) {
+            String filePath = file.getPath();
+            int i = filePath.indexOf(oldFolderPath) + oldFolderPath.length();
+            file.setPath(newFolderPath + filePath.substring(i));
+            map.put(filePath, file.getPath());
+            if (file.getIsFolder() == 0) {
+                minioUtil.copy(bucketName, filePath , file.getPath(), file.getName(), file.getName());
+            }
+        }
+        for (String oldPath : map.keySet()) {
+            String newPath = map.get(oldPath);
+            Query query = Query.query(Criteria.where("path").is(oldPath));
+            Update update = Update.update("path", newPath);
+            mongoTemplate.updateMulti(query, update, bucketName);
+        }
+
+        // 更新该文件夹
+        Query queryFolder = Query.query(Criteria.where("path").is(path).and("name").is(oldName));
+        Update updateFolder = Update.update("name", newName);
+        UpdateResult result = mongoTemplate.updateFirst(queryFolder, updateFolder, bucketName);
+
+        return result.toString();
     }
 
     @Override
@@ -347,7 +401,7 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 验证文件夹是否存在
+     * 验证文件夹是否重复
      *
      * @param bucketName 存储桶名
      * @param path 文件夹路径

@@ -1,14 +1,22 @@
+server:
+  port: 8080
 spring:
   # Datasource Config
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://121.196.210.13:3306/project
     username: project
     password: 123456
-server:
-  port: 8080
-  error:
-    include-message: always
+  data:
+    mongodb:
+      username: admin
+      password: '123456'
+      database: admin
+      host: 121.196.210.13
+      port: 27017
+minio:
+  url: http://121.196.210.13:9000
+  accessKey: minioadmin
+  secretKey: minioadmin
 springfox:
   documentation:
     swagger-ui:

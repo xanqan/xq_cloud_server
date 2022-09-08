@@ -49,7 +49,7 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "创建文件夹")
+    @Operation(summary = "文件夹创建")
     @PostMapping("/createFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> createFolder(@RequestParam("path") String path,
@@ -59,13 +59,24 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "删除文件夹")
+    @Operation(summary = "文件夹删除")
     @PostMapping("/deleteFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> deleteFolder(@RequestParam("path") String path,
                                               @RequestParam("folderName") String folderName,
                                               HttpServletRequest request) {
         boolean result = fileService.deleteFolder(path, folderName, request);
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "文件夹重命名")
+    @PostMapping("/reNameFolder")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<String> reNameFolder(@RequestParam("path") String path,
+                                             @RequestParam("oldName") String oldName,
+                                             @RequestParam("newName") String newName,
+                                             HttpServletRequest request) {
+        String result = fileService.reNameFolder(path, oldName, newName, request);
         return ResultUtils.success(result);
     }
 
