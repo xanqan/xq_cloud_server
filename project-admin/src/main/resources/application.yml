@@ -17,9 +17,9 @@ spring:
       max-active: 20
   data:
     mongodb:
-      username: admin
+      username: xqcloud
       password: '123456'
-      database: admin
+      database: xqcloud
       host: 121.196.210.13
       port: 27017
   servlet:

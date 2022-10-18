@@ -6,9 +6,9 @@ import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.mapper.UserPermissionAdminMapper;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
-import com.xanqan.project.model.dto.UserSecurity;
+import com.xanqan.project.security.model.UserSecurity;
 import com.xanqan.project.security.config.SecurityConfig;
-import com.xanqan.project.service.UserAdminService;
+import com.xanqan.project.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -29,7 +29,7 @@ import java.util.List;
 public class ReSecurityConfig extends SecurityConfig {
 
     @Resource
-    private UserAdminService userAdminService;
+    private UserService userService;
     @Resource
     private UserPermissionAdminMapper userPermissionAdminMapper;
 
@@ -37,10 +37,10 @@ public class ReSecurityConfig extends SecurityConfig {
     @Override
     public UserDetailsService userDetailsService() {
         //获取登录用户信息
-        return username -> {
+        return userName -> {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("name", username);
-            User user = userAdminService.getOne(queryWrapper);
+            queryWrapper.eq("name", userName);
+            User user = userService.getOne(queryWrapper);
             if (user != null) {
                 List<Permission> permissionList = userPermissionAdminMapper.getUserPermissionNameList(user.getId());
                 return new UserSecurity(user,permissionList);

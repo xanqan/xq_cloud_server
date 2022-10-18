@@ -1,4 +1,4 @@
-package com.xanqan.project.model.dto;
+package com.xanqan.project.security.model;
 
 
 import com.xanqan.project.model.domain.Permission;
@@ -32,6 +32,10 @@ public class UserSecurity implements UserDetails {
                 .filter(permission -> permission.getName()!=null)
                 .map(permission ->new SimpleGrantedAuthority(permission.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override

@@ -23,16 +23,20 @@ import java.util.Map;
  * payload的格式（用户id、创建时间、生成时间）：
  * {"sub":"id","created":1489079981393,"exp":1489684781}
  * signature的生成算法：
- ** HASH512(base64UrlEncode(header) + "." +base64UrlEncode(payload),secret)
+ * * HASH512(base64UrlEncode(header) + "." +base64UrlEncode(payload),secret)
  *
  * @author xanqan
  */
 @Component
 public class JwtTokenUtil {
 
-    /** 用户id_key */
+    /**
+     * username_key
+     */
     private static final String CLAIM_KEY_USERNAME = "sub";
-    /** 创建时间_key */
+    /**
+     * 创建时间_key
+     */
     private static final String CLAIM_KEY_CREATED = "created";
 
     @Value("${jwt.tokenHead}")
@@ -89,6 +93,7 @@ public class JwtTokenUtil {
         return username;
     }
 
+
     /**
      * 从token中获取JWT中的负载
      */
@@ -140,22 +145,22 @@ public class JwtTokenUtil {
      * @return token
      */
     public String refreshHeadToken(String oldToken) {
-        if(StrUtil.isEmpty(oldToken)){
+        if (StrUtil.isEmpty(oldToken)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "token为空");
         }
         String token = oldToken.substring(tokenHead.length());
-        if(StrUtil.isEmpty(token)){
+        if (StrUtil.isEmpty(token)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "token只有开头");
         }
         Claims claims = getClaimsFromToken(token);
         //如果token已经过期，不支持刷新
-        if(isTokenExpired(token)){
+        if (isTokenExpired(token)) {
             throw new BusinessException(ResultCode.NOT_LOGIN, "过期");
         }
         //如果token在30分钟之内刚刷新过，返回原token
-        if(tokenRefreshJustBefore(claims)){
+        if (tokenRefreshJustBefore(claims)) {
             return token;
-        }else{
+        } else {
             claims.put(CLAIM_KEY_CREATED, new Date());
             return generateToken(claims);
         }
@@ -163,6 +168,7 @@ public class JwtTokenUtil {
 
     /**
      * 判断token在指定时间内是否刚刚刷新过
+     *
      * @param claims token负载
      * @return ture = 刚刷新过
      */

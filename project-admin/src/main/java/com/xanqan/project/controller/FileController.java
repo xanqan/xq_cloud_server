@@ -1,7 +1,9 @@
 package com.xanqan.project.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultUtils;
+import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
 import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -34,8 +35,8 @@ public class FileController {
     @PostMapping("/getFileList")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<List<File>> getFileList(@RequestParam("path") String path,
-                                                HttpServletRequest request) {
-        List<File> result = fileService.getFileList(path, request);
+                                                @RequestParam("user") String user) {
+        List<File> result = fileService.getFileList(path, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -44,8 +45,8 @@ public class FileController {
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Long> getFolderSize(@RequestParam("path") String path,
                                             @RequestParam("folderName") String folderName,
-                                            HttpServletRequest request) {
-        long result = fileService.getFolderSize(path, folderName, request);
+                                            @RequestParam("user") String user) {
+        long result = fileService.getFolderSize(path, folderName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -54,8 +55,8 @@ public class FileController {
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> createFolder(@RequestParam("path") String path,
                                               @RequestParam("folderName") String folderName,
-                                              HttpServletRequest request) {
-        boolean result = fileService.createFolder(path, folderName, request);
+                                              @RequestParam("user") String user) {
+        boolean result = fileService.createFolder(path, folderName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -64,8 +65,8 @@ public class FileController {
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> deleteFolder(@RequestParam("path") String path,
                                               @RequestParam("folderName") String folderName,
-                                              HttpServletRequest request) {
-        boolean result = fileService.deleteFolder(path, folderName, request);
+                                              @RequestParam("user") String user) {
+        boolean result = fileService.deleteFolder(path, folderName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -75,8 +76,8 @@ public class FileController {
     public BaseResponse<String> reNameFolder(@RequestParam("path") String path,
                                              @RequestParam("oldName") String oldName,
                                              @RequestParam("newName") String newName,
-                                             HttpServletRequest request) {
-        String result = fileService.reNameFolder(path, oldName, newName, request);
+                                             @RequestParam("user") String user) {
+        String result = fileService.reNameFolder(path, oldName, newName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -85,8 +86,8 @@ public class FileController {
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<String> upload(@RequestParam("path") String path,
                                        @RequestParam("file") MultipartFile multipartFile,
-                                       HttpServletRequest request) {
-        String result = fileService.upload(path, multipartFile, request);
+                                       @RequestParam("user") String user) {
+        String result = fileService.upload(path, multipartFile, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -95,8 +96,8 @@ public class FileController {
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> delete(@RequestParam("path") String path,
                                         @RequestParam("fileName") String fileName,
-                                        HttpServletRequest request) {
-        boolean result = fileService.remove(path, fileName, request);
+                                        @RequestParam("user") String user) {
+        boolean result = fileService.remove(path, fileName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -106,8 +107,8 @@ public class FileController {
     public BaseResponse<String> reName(@RequestParam("path") String path,
                                        @RequestParam("oldName") String oldName,
                                        @RequestParam("newName") String newName,
-                                       HttpServletRequest request) {
-        String result = fileService.reName(path, oldName, newName, request);
+                                       @RequestParam("user") String user) {
+        String result = fileService.reName(path, oldName, newName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -115,10 +116,10 @@ public class FileController {
     @PostMapping("/move")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<String> move(@RequestParam("oldPath") String oldPath,
-                                       @RequestParam("newPath") String newPath,
-                                       @RequestParam("fileName") String fileName,
-                                       HttpServletRequest request) {
-        String result = fileService.move(oldPath, newPath, fileName, request);
+                                     @RequestParam("newPath") String newPath,
+                                     @RequestParam("fileName") String fileName,
+                                     @RequestParam("user") String user) {
+        String result = fileService.move(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 }

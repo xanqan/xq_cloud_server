@@ -3,15 +3,15 @@ server:
 spring:
   # Datasource Config
   datasource:
-    url: jdbc:mysql://121.196.210.13:3306/project
-    username: project
+    url: jdbc:mysql://db:3306/xqcloud
+    username: xqcloud
     password: 123456
   data:
     mongodb:
-      username: admin
+      username: xqcloud
       password: '123456'
-      database: admin
-      host: 121.196.210.13
+      database: xqcloud
+      host: mongo
       port: 27017
 minio:
   url: http://121.196.210.13:9000

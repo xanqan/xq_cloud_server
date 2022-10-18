@@ -1,11 +1,12 @@
 package com.xanqan.project.security.component;
 
+import cn.hutool.json.JSONUtil;
+import com.xanqan.project.security.model.UserSecurity;
 import com.xanqan.project.security.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,24 +37,28 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private String tokenHeader;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+        ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
         String authHeader = request.getHeader(tokenHeader);
         if (authHeader != null && authHeader.startsWith(tokenHead)) {
             String authToken = authHeader.substring(tokenHead.length());
-            String username = jwtTokenUtil.getUserNameFromToken(authToken);
+            String userName = jwtTokenUtil.getUserNameFromToken(authToken);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (jwtTokenUtil.validateToken(authToken, userDetails)) {
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserSecurity userSecurity = (UserSecurity) userDetailsService.loadUserByUsername(userName);
+                if (jwtTokenUtil.validateToken(authToken, userSecurity)) {
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            new UsernamePasswordAuthenticationToken(userSecurity, null, userSecurity.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    // 将用户信息放入自定义request.parameter
+                    requestWrapper.addParameter("user", JSONUtil.toJsonStr(userSecurity.getUser()));
                 }
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(requestWrapper, response);
     }
 }

@@ -1,23 +1,16 @@
 package com.xanqan.project.service.impl;
 
-import java.util.*;
-
-import com.mongodb.client.result.DeleteResult;
-
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
-import com.xanqan.project.security.util.JwtTokenUtil;
-import com.xanqan.project.service.UserAdminService;
-import com.xanqan.project.util.FileUtil;
-
 import com.xanqan.project.model.dto.File;
 import com.xanqan.project.service.FileService;
+import com.xanqan.project.service.UserAdminService;
+import com.xanqan.project.util.FileUtil;
 import com.xanqan.project.util.MinioUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -26,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -43,28 +39,24 @@ public class FileServiceImpl implements FileService {
     @Resource
     private FileUtil fileUtil;
     @Resource
-    private JwtTokenUtil jwtTokenUtil;
-    @Resource
     private UserAdminService userAdminService;
 
-    @Value("${jwt.tokenHead}")
-    private String tokenHead;
-    @Value("${jwt.tokenHeader}")
-    private String tokenHeader;
-    /** 根目录 */
+    /**
+     * 根目录
+     */
     private static final String ROOT_DIRECTORY = "/";
-    /** 根目录 */
+    /**
+     * 存储桶处理
+     */
     private static final String BUCKET_NAME_PREFIX = "xq";
 
     @Override
-    public List<File> getFileList(String path, HttpServletRequest request) {
+    public List<File> getFileList(String path, User user) {
         // 校验
         if (StrUtil.hasBlank(path)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 获取路径下全部文件（包括文件夹）
@@ -73,14 +65,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public long getFolderSize(String path, String folderName, HttpServletRequest request) {
+    public long getFolderSize(String path, String folderName, User user) {
         // 校验
-        if (StrUtil.hasBlank(folderName ,path)) {
+        if (StrUtil.hasBlank(folderName, path)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 文件夹路径加工
@@ -104,14 +94,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean createFolder(String path, String folderName, HttpServletRequest request) {
+    public boolean createFolder(String path, String folderName, User user) {
         // 校验
-        if (StrUtil.hasBlank(folderName ,path)) {
+        if (StrUtil.hasBlank(folderName, path)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否重复
@@ -130,14 +118,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean deleteFolder(String path, String folderName, HttpServletRequest request) {
+    public boolean deleteFolder(String path, String folderName, User user) {
         // 校验
-        if (StrUtil.hasBlank(folderName ,path)) {
+        if (StrUtil.hasBlank(folderName, path)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 文件夹路径加工
@@ -176,7 +162,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String reNameFolder(String path, String oldName, String newName, HttpServletRequest request) {
+    public String reNameFolder(String path, String oldName, String newName, User user) {
         // 校验
         if (StrUtil.hasBlank(path, oldName, newName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -185,8 +171,6 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "文件夹名一样");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 文件夹路径加工
@@ -212,7 +196,7 @@ public class FileServiceImpl implements FileService {
             file.setPath(newFolderPath + filePath.substring(i));
             map.put(filePath, file.getPath());
             if (file.getIsFolder() == 0) {
-                minioUtil.copy(bucketName, filePath , file.getPath(), file.getName(), file.getName());
+                minioUtil.copy(bucketName, filePath, file.getPath(), file.getName(), file.getName());
             }
         }
         for (String oldPath : map.keySet()) {
@@ -231,7 +215,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String upload(String path, MultipartFile multipartFile, HttpServletRequest request) {
+    public String upload(String path, MultipartFile multipartFile, User user) {
         // 校验
         if (StrUtil.hasBlank(path)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -240,8 +224,6 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "文件为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否存在
@@ -268,14 +250,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean remove(String path, String fileName, HttpServletRequest request) {
+    public boolean remove(String path, String fileName, User user) {
         // 校验
         if (StrUtil.hasBlank(path, fileName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 查询要删除文件的详细信息
@@ -293,7 +273,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String reName(String path, String oldName, String newName, HttpServletRequest request) {
+    public String reName(String path, String oldName, String newName, User user) {
         // 校验
         if (StrUtil.hasBlank(path, oldName, newName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -302,8 +282,6 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "文件名一样");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件是否重复
@@ -321,7 +299,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String move(String oldPath, String newPath, String fileName, HttpServletRequest request) {
+    public String move(String oldPath, String newPath, String fileName, User user) {
         // 校验
         if (StrUtil.hasBlank(oldPath, newPath, fileName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -330,8 +308,6 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "文件名一样");
         }
 
-        // 用户信息获取
-        User user = this.getTokenUser(request);
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否存在
@@ -352,24 +328,9 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 由 request 中取出 token 再取出 name 再根据 name 从数据库中取出用户详细信息
-     *
-     * @param request 用于获取 token
-     * @return user
-     */
-    private User getTokenUser(HttpServletRequest request) {
-        String authHeader = request.getHeader(tokenHeader);
-        String authToken = authHeader.substring(tokenHead.length());
-        String userName = jwtTokenUtil.getUserNameFromToken(authToken);
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", userName);
-        return userAdminService.getOne(queryWrapper);
-    }
-
-    /**
      * 文件夹路径加工，用于后续遍历
      *
-     * @param path 文件夹路径
+     * @param path       文件夹路径
      * @param folderName 文件夹名
      * @return 加工后路径
      */
@@ -385,7 +346,7 @@ public class FileServiceImpl implements FileService {
      * 验证文件夹是否存在
      *
      * @param bucketName 存储桶名
-     * @param path 文件路径
+     * @param path       文件路径
      */
     private void isFolderExist(String bucketName, String path) {
         if (!ROOT_DIRECTORY.equals(path)) {
@@ -404,7 +365,7 @@ public class FileServiceImpl implements FileService {
      * 验证文件夹是否重复
      *
      * @param bucketName 存储桶名
-     * @param path 文件夹路径
+     * @param path       文件夹路径
      * @param folderName 文件夹名
      */
     private void isFolderRepeat(String bucketName, String path, String folderName) {
@@ -421,8 +382,8 @@ public class FileServiceImpl implements FileService {
      * 验证文件是否重复
      *
      * @param bucketName 存储桶名
-     * @param path 文件路径
-     * @param fileName 文件名
+     * @param path       文件路径
+     * @param fileName   文件名
      */
     private void isRepeat(String bucketName, String path, String fileName) {
         Query queryCount = Query.query(Criteria.where("path").is(path)

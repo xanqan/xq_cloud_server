@@ -26,15 +26,6 @@ public class UserServiceTest {
     private UserPermissionAdminMapper userPermissionAdminMapper;
 
     @Test
-    public void testAddUser() {
-        User user = new User();
-        user.setName("demo3");
-        user.setPassword("123456");
-        int result = userAdminService.userRegister(user.getName(), user.getPassword());
-        log.info("result = " + result);
-    }
-
-    @Test
     public void test() {
         List<Permission> permissionList = userPermissionAdminMapper.getUserPermissionNameList(1);
         log.info("result = " + permissionList.toString());
