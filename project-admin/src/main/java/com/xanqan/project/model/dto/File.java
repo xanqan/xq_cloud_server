@@ -1,7 +1,6 @@
 package com.xanqan.project.model.dto;
 
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -21,7 +20,7 @@ public class File {
      * 主键,由 mongodb 自动生成，对应 _id 字段
      */
     @MongoId
-    private ObjectId id;
+    private String id;
 
     /**
      * 文件名

@@ -88,7 +88,7 @@ public class JwtTokenUtil {
             Claims claims = getClaimsFromToken(token);
             username = claims.getSubject();
         } catch (Exception e) {
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "JWT格式验证失败:" + token);
+            return null;
         }
         return username;
     }
