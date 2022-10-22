@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.xanqan.project.model.domain.Permission;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
  *
  * @author xanqan
  */
-public interface UserPermissionAdminMapper extends BaseMapper<Permission> {
+@Primary
+public interface PermissionMapper extends BaseMapper<Permission> {
 
     /**
      * 根据用户id获取其全部权限
@@ -21,6 +23,6 @@ public interface UserPermissionAdminMapper extends BaseMapper<Permission> {
      * @return 权限列表
      */
     @Select("select p.name from user_permission up join permission p on p.id = up.permission_id where user_id = #{userId}")
-    List<Permission> getUserPermissionNameList(@Param("userId") int userId);
+    List<Permission> getUserPermissionsById(@Param("userId") int userId);
 
 }

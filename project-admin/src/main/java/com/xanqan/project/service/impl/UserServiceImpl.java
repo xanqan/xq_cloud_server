@@ -2,12 +2,15 @@ package com.xanqan.project.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
+import com.xanqan.project.mapper.PermissionMapper;
 import com.xanqan.project.mapper.UserMapper;
+import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.security.util.JwtTokenUtil;
-import com.xanqan.project.service.UserAdminService;
+import com.xanqan.project.service.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,9 +31,9 @@ import java.util.regex.Pattern;
  */
 @Service
 @Primary
-public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
-    private UserMapper userMapper;
+    private PermissionMapper permissionMapper;
     @Resource
     private PasswordEncoder passwordEncoder;
     @Resource
@@ -37,10 +41,19 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
     @Resource
     private JwtTokenUtil jwtTokenUtil;
 
-    /** 用户账号最小位数 */
+    /**
+     * 用户账号最小位数
+     */
     public static final int MIN_USERNAME = 4;
-    /** 用户密码最小位数 */
+    /**
+     * 用户密码最小位数
+     */
     public static final int MIN_PASSWORD = 6;
+
+    @Override
+    public List<Permission> getUserPermissionsById(int id) {
+        return permissionMapper.getUserPermissionsById(id);
+    }
 
     @Override
     public int userRegister(String userName, String password) {
@@ -63,9 +76,8 @@ public class UserAdminServiceImpl extends UserServiceImpl implements UserAdminSe
         }
 
         // 账号不能重复
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", userName);
-        Long count = userMapper.selectCount(queryWrapper);
+        long count = this.count(new QueryWrapper<User>()
+                .eq("name", userName));
         if (count > 0) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "账号重复");
         }

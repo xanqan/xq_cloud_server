@@ -53,10 +53,10 @@ public class FileController {
     @Operation(summary = "文件夹创建")
     @PostMapping("/createFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> createFolder(@RequestParam("path") String path,
-                                              @RequestParam("folderName") String folderName,
-                                              @RequestParam("user") String user) {
-        boolean result = fileService.createFolder(path, folderName, JSONUtil.toBean(user, User.class));
+    public BaseResponse<File> createFolder(@RequestParam("path") String path,
+                                           @RequestParam("folderName") String folderName,
+                                           @RequestParam("user") String user) {
+        File result = fileService.createFolder(path, folderName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -73,21 +73,21 @@ public class FileController {
     @Operation(summary = "文件夹重命名")
     @PostMapping("/reNameFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<String> reNameFolder(@RequestParam("path") String path,
-                                             @RequestParam("oldName") String oldName,
-                                             @RequestParam("newName") String newName,
-                                             @RequestParam("user") String user) {
-        String result = fileService.reNameFolder(path, oldName, newName, JSONUtil.toBean(user, User.class));
+    public BaseResponse<Boolean> reNameFolder(@RequestParam("path") String path,
+                                              @RequestParam("oldName") String oldName,
+                                              @RequestParam("newName") String newName,
+                                              @RequestParam("user") String user) {
+        boolean result = fileService.reNameFolder(path, oldName, newName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "文件上传")
     @PostMapping("/upload")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<String> upload(@RequestParam("path") String path,
-                                       @RequestParam("file") MultipartFile multipartFile,
-                                       @RequestParam("user") String user) {
-        String result = fileService.upload(path, multipartFile, JSONUtil.toBean(user, User.class));
+    public BaseResponse<File> upload(@RequestParam("path") String path,
+                                     @RequestParam("file") MultipartFile multipartFile,
+                                     @RequestParam("user") String user) {
+        File result = fileService.upload(path, multipartFile, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -104,22 +104,22 @@ public class FileController {
     @Operation(summary = "文件重命名")
     @PostMapping("/reName")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<String> reName(@RequestParam("path") String path,
-                                       @RequestParam("oldName") String oldName,
-                                       @RequestParam("newName") String newName,
-                                       @RequestParam("user") String user) {
-        String result = fileService.reName(path, oldName, newName, JSONUtil.toBean(user, User.class));
+    public BaseResponse<Boolean> reName(@RequestParam("path") String path,
+                                        @RequestParam("oldName") String oldName,
+                                        @RequestParam("newName") String newName,
+                                        @RequestParam("user") String user) {
+        boolean result = fileService.reName(path, oldName, newName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "文件移动")
     @PostMapping("/move")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<String> move(@RequestParam("oldPath") String oldPath,
-                                     @RequestParam("newPath") String newPath,
-                                     @RequestParam("fileName") String fileName,
-                                     @RequestParam("user") String user) {
-        String result = fileService.move(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
+    public BaseResponse<Boolean> move(@RequestParam("oldPath") String oldPath,
+                                      @RequestParam("newPath") String newPath,
+                                      @RequestParam("fileName") String fileName,
+                                      @RequestParam("user") String user) {
+        boolean result = fileService.move(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 }

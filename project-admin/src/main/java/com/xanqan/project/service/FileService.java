@@ -40,7 +40,7 @@ public interface FileService {
      * @param user       用户信息
      * @return boolean
      */
-    boolean createFolder(String path, String folderName, User user);
+    File createFolder(String path, String folderName, User user);
 
     /**
      * 删除文件夹及其下所有文件
@@ -61,7 +61,7 @@ public interface FileService {
      * @param user    用户信息
      * @return 文件的可访问路径
      */
-    String reNameFolder(String path, String oldName, String newName, User user);
+    boolean reNameFolder(String path, String oldName, String newName, User user);
 
     /**
      * 文件上传
@@ -71,7 +71,7 @@ public interface FileService {
      * @param user          用户信息
      * @return 文件的可访问路径
      */
-    String upload(String path, MultipartFile multipartFile, User user);
+    File upload(String path, MultipartFile multipartFile, User user);
 
     /**
      * 文件删除
@@ -92,7 +92,7 @@ public interface FileService {
      * @param user    用户信息
      * @return 文件的可访问路径
      */
-    String reName(String path, String oldName, String newName, User user);
+    boolean reName(String path, String oldName, String newName, User user);
 
     /**
      * 文件移动
@@ -103,5 +103,5 @@ public interface FileService {
      * @param user     用户信息
      * @return 文件的可访问路径
      */
-    String move(String oldPath, String newPath, String fileName, User user);
+    boolean move(String oldPath, String newPath, String fileName, User user);
 }
