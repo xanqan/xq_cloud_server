@@ -3,6 +3,7 @@ package com.xanqan.project.security.config;
 import com.xanqan.project.security.component.JwtAuthenticationTokenFilter;
 import com.xanqan.project.security.component.RestAuthenticationEntryPoint;
 import com.xanqan.project.security.component.RestfulAccessDeniedHandler;
+import com.xanqan.project.security.model.IgnoreUrls;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     @Resource
-    private IgnoreUrlsConfig ignoreUrlsConfig;
+    private IgnoreUrls ignoreUrls;
     @Resource
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -39,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = httpSecurity
                 .authorizeRequests();
         //不需要保护的资源路径允许访问
-        for (String url : ignoreUrlsConfig.getUrls()) {
+        for (String url : ignoreUrls.getUrls()) {
             registry.antMatchers(url).permitAll();
         }
         //允许跨域请求的OPTIONS请求

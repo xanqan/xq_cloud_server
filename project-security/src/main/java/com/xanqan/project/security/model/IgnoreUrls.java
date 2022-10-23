@@ -1,4 +1,4 @@
-package com.xanqan.project.security.config;
+package com.xanqan.project.security.model;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @Component
 @ConfigurationProperties(prefix = "secure.ignored")
-public class IgnoreUrlsConfig {
+public class IgnoreUrls {
 
     private List<String> urls = new ArrayList<>();
 

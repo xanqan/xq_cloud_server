@@ -1,9 +1,9 @@
 package com.xanqan.project.security.component;
 
 import cn.hutool.json.JSONUtil;
+import com.xanqan.project.security.model.Jwt;
 import com.xanqan.project.security.model.UserSecurity;
 import com.xanqan.project.security.util.JwtTokenUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,24 +26,20 @@ import java.io.IOException;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Resource
+    private Jwt jwt;
+    @Resource
     private JwtTokenUtil jwtTokenUtil;
     @Resource
     private UserDetailsService userDetailsService;
-
-    @Value("${jwt.tokenHead}")
-    private String tokenHead;
-
-    @Value("${jwt.tokenHeader}")
-    private String tokenHeader;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
-        String authHeader = request.getHeader(tokenHeader);
-        if (authHeader != null && authHeader.startsWith(tokenHead)) {
-            String authToken = authHeader.substring(tokenHead.length());
+        String authHeader = request.getHeader(jwt.getTokenHeader());
+        if (authHeader != null && authHeader.startsWith(jwt.getTokenHead())) {
+            String authToken = authHeader.substring(jwt.getTokenHead().length());
             String userName = jwtTokenUtil.getUserNameFromToken(authToken);
 
             if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
