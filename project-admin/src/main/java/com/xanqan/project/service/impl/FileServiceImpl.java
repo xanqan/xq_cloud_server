@@ -195,7 +195,9 @@ public class FileServiceImpl implements FileService {
 
         // 更新该文件夹
         Query queryFolder = Query.query(Criteria.where("path").is(path).and("name").is(oldName).and("isFolder").is(1));
-        Update updateFolder = Update.update("name", newName);
+        Update updateFolder = new Update()
+                .set("name", newName)
+                .set("modifyTime", new Date());
         mongoTemplate.updateFirst(queryFolder, updateFolder, bucketName);
 
         return true;
@@ -280,7 +282,9 @@ public class FileServiceImpl implements FileService {
         Query query = Query.query(Criteria.where("path").is(path)
                 .and("name").is(oldName)
                 .and("isFolder").is(0));
-        Update update = Update.update("name", newName);
+        Update update = new Update()
+                .set("name", newName)
+                .set("modifyTime", new Date());
         mongoTemplate.updateFirst(query, update, bucketName);
         minioUtil.move(bucketName, path, path, oldName, newName);
 
