@@ -204,6 +204,16 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public boolean moveFolder(String oldPath, String newPath, String folderName, User user) {
+        return false;
+    }
+
+    @Override
+    public boolean copyFolder(String oldPath, String newPath, String folderName, User user) {
+        return false;
+    }
+
+    @Override
     public File upload(String path, MultipartFile multipartFile, User user) {
         // 校验
         if (StrUtil.hasBlank(path)) {
@@ -298,7 +308,7 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
         if (oldPath.equals(newPath)) {
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "前后文件名一样");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "前后路径一样");
         }
 
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
@@ -316,6 +326,35 @@ public class FileServiceImpl implements FileService {
         Update update = Update.update("path", newPath);
         mongoTemplate.updateFirst(query, update, bucketName);
         minioUtil.move(bucketName, oldPath, newPath, fileName, fileName);
+
+        return true;
+    }
+
+    @Override
+    public boolean copy(String oldPath, String newPath, String fileName, User user) {
+        // 校验
+        if (StrUtil.hasBlank(oldPath, newPath, fileName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldPath.equals(newPath)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "前后路径一样");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 验证文件夹是否存在
+        this.isFolderExist(bucketName, newPath);
+
+        // 验证文件是否重复
+        this.isRepeat(bucketName, newPath, fileName);
+
+        //更新文件
+        Query query = Query.query(Criteria.where("path").is(oldPath)
+                .and("name").is(fileName)
+                .and("isFolder").is(0));
+        Update update = Update.update("path", newPath);
+        mongoTemplate.updateFirst(query, update, bucketName);
+        minioUtil.copy(bucketName, oldPath, newPath, fileName, fileName);
 
         return true;
     }

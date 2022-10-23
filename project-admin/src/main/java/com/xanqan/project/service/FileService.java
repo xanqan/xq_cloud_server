@@ -64,6 +64,28 @@ public interface FileService {
     boolean reNameFolder(String path, String oldName, String newName, User user);
 
     /**
+     * 文件夹重命名
+     *
+     * @param oldPath    原文件夹路径
+     * @param newPath    移动后文件夹路径
+     * @param folderName 文件名
+     * @param user       用户信息
+     * @return 文件的可访问路径
+     */
+    boolean moveFolder(String oldPath, String newPath, String folderName, User user);
+
+    /**
+     * 文件夹重命名
+     *
+     * @param oldPath    原文件夹路径
+     * @param newPath    复制后文件夹路径
+     * @param folderName 文件名
+     * @param user       用户信息
+     * @return 文件的可访问路径
+     */
+    boolean copyFolder(String oldPath, String newPath, String folderName, User user);
+
+    /**
      * 文件上传
      *
      * @param path          文件的路径
@@ -98,10 +120,21 @@ public interface FileService {
      * 文件移动
      *
      * @param oldPath  原文件路径
-     * @param newPath  修改后文件路径
+     * @param newPath  移动后文件路径
      * @param fileName 文件名
      * @param user     用户信息
      * @return 文件的可访问路径
      */
     boolean move(String oldPath, String newPath, String fileName, User user);
+
+    /**
+     * 文件复制
+     *
+     * @param oldPath  原文件路径
+     * @param newPath  复制后文件路径
+     * @param fileName 文件名
+     * @param user     用户信息
+     * @return 文件的可访问路径
+     */
+    boolean copy(String oldPath, String newPath, String fileName, User user);
 }
