@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -49,6 +48,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户密码最小位数
      */
     public static final int MIN_PASSWORD = 6;
+    /**
+     * 用户密码最小位数
+     */
+    public static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
+
+    public static boolean pattern(String str) {
+        return !PATTERN.matcher(str).matches();
+    }
 
     @Override
     public List<Permission> getUserPermissionsById(int id) {
@@ -69,9 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 账号不能包含特殊字符
-        String validPattern = "[ _`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\n|\r|\t";
-        Matcher matcher = Pattern.compile(validPattern).matcher(userName);
-        if (matcher.find()) {
+        if (pattern(userName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "账号包含特殊字符");
         }
 
@@ -110,9 +115,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 账号不能包含特殊字符
-        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\\\\\[\\\\\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
-        Matcher matcher = Pattern.compile(validPattern).matcher(userName);
-        if (matcher.find()) {
+        if (pattern(userName)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "账号包含特殊字符");
         }
 
