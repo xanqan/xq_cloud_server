@@ -187,10 +187,9 @@ public class FileServiceImpl implements FileService {
                 minioUtil.move(bucketName, filePath, file.getPath(), file.getName(), file.getName());
             }
         }
-        for (String oldPath : map.keySet()) {
-            String newPath = map.get(oldPath);
-            Query query = Query.query(Criteria.where("path").is(oldPath));
-            Update update = Update.update("path", newPath);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Query query = Query.query(Criteria.where("path").is(entry.getKey()));
+            Update update = Update.update("path", entry.getValue());
             mongoTemplate.updateMulti(query, update, bucketName);
         }
 
