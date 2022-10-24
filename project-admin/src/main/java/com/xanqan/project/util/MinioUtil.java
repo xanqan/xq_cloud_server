@@ -3,15 +3,12 @@ package com.xanqan.project.util;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import io.minio.*;
-import io.minio.messages.DeleteObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * MinIO 服务封装工具类
@@ -106,7 +103,7 @@ public class MinioUtil {
      */
     public String upload(String bucketName, String path, MultipartFile multipartFile) {
         existBucket(bucketName);
-        String object = path + "/" + multipartFile.getOriginalFilename();
+        String object = path + ROOT_DIRECTORY + multipartFile.getOriginalFilename();
         InputStream in = null;
         try {
             in = multipartFile.getInputStream();
@@ -128,7 +125,7 @@ public class MinioUtil {
                 }
             }
         }
-        return url + "/" + bucketName + object;
+        return url + ROOT_DIRECTORY + bucketName + object;
     }
 
     /**
@@ -140,31 +137,9 @@ public class MinioUtil {
      * @return boolean
      */
     public boolean remove(String bucketName, String path, String fileName) {
-        String object = path + "/" + fileName;
+        String object = path.concat(ROOT_DIRECTORY).concat(fileName);
         try {
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(object).build());
-        } catch (Exception e) {
-            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
-        }
-        return true;
-    }
-
-    /**
-     * 文件删除
-     *
-     * @param bucketName 存储桶名
-     * @param paths      文件路径集合
-     * @param fileNames  文件名集合
-     * @return boolean
-     */
-    public boolean removeBatch(String bucketName, List<String> paths, List<String> fileNames) {
-        List<DeleteObject> objects = new ArrayList<>();
-        int n = paths.size();
-        for (int i = 0; i < n; ++i) {
-            objects.add(new DeleteObject(paths.get(i).concat("/").concat(fileNames.get(i))));
-        }
-        try {
-            minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucketName).objects(objects).build());
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
@@ -182,14 +157,8 @@ public class MinioUtil {
      * @return 文件的可访问路径
      */
     public String move(String bucketName, String oldPath, String newPath, String oldName, String newName) {
-        String oldObject = oldPath.concat(oldName);
-        if (!ROOT_DIRECTORY.equals(oldPath)) {
-            oldObject = oldPath.concat(ROOT_DIRECTORY).concat(oldName);
-        }
-        String newObject = newPath.concat(newName);
-        if (!ROOT_DIRECTORY.equals(newPath)) {
-            newObject = newPath.concat(ROOT_DIRECTORY).concat(newName);
-        }
+        String oldObject = oldPath.concat(ROOT_DIRECTORY).concat(oldName);
+        String newObject = newPath.concat(ROOT_DIRECTORY).concat(newName);
         try {
             CopySource copySource = CopySource.builder().bucket(bucketName).object(oldObject).build();
             minioClient.copyObject(CopyObjectArgs.builder().bucket(bucketName).object(newObject).source(copySource).build());
@@ -197,7 +166,7 @@ public class MinioUtil {
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
-        return url + "/" + bucketName + newObject;
+        return url + ROOT_DIRECTORY + bucketName + newObject;
     }
 
     /**
@@ -211,20 +180,14 @@ public class MinioUtil {
      * @return 文件的可访问路径
      */
     public String copy(String bucketName, String oldPath, String newPath, String oldName, String newName) {
-        String oldObject = oldPath.concat(oldName);
-        if (!ROOT_DIRECTORY.equals(oldPath)) {
-            oldObject = oldPath.concat(ROOT_DIRECTORY).concat(oldName);
-        }
-        String newObject = newPath.concat(newName);
-        if (!ROOT_DIRECTORY.equals(newPath)) {
-            newObject = newPath.concat(ROOT_DIRECTORY).concat(newName);
-        }
+        String oldObject = oldPath.concat(ROOT_DIRECTORY).concat(oldName);
+        String newObject = newPath.concat(ROOT_DIRECTORY).concat(newName);
         try {
             CopySource copySource = CopySource.builder().bucket(bucketName).object(oldObject).build();
             minioClient.copyObject(CopyObjectArgs.builder().bucket(bucketName).object(newObject).source(copySource).build());
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
-        return url + "/" + bucketName + newObject;
+        return url + ROOT_DIRECTORY + bucketName + newObject;
     }
 }
