@@ -81,6 +81,28 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
+    @Operation(summary = "文件夹移动")
+    @PostMapping("/moveFolder")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> moveFolder(@RequestParam("oldPath") String oldPath,
+                                            @RequestParam("newPath") String newPath,
+                                            @RequestParam("folderName") String folderName,
+                                            @RequestParam("user") String user) {
+        boolean result = fileService.moveFolder(oldPath, newPath, folderName, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "文件夹拷贝")
+    @PostMapping("/copyFolder")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> copyFolder(@RequestParam("oldPath") String oldPath,
+                                            @RequestParam("newPath") String newPath,
+                                            @RequestParam("folderName") String folderName,
+                                            @RequestParam("user") String user) {
+        boolean result = fileService.copyFolder(oldPath, newPath, folderName, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
     @Operation(summary = "文件上传")
     @PostMapping("/upload")
     @PreAuthorize("hasAnyAuthority('read', 'write')")

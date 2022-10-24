@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 文件服务类
@@ -139,15 +138,19 @@ public class FileServiceImpl implements FileService {
         DeleteResult result = mongoTemplate.remove(query, bucketName);
 
         // 删除该文件夹下所有文件
-        boolean removeBatch = minioUtil.removeBatch(bucketName,
-                files.stream().map(File::getPath).collect(Collectors.toList()),
-                files.stream().map(File::getName).collect(Collectors.toList()));
+        for (File file : files) {
+            minioUtil.remove(bucketName, file.getPath(), file.getName());
+        }
+//        boolean removeBatch = minioUtil.removeBatch(bucketName,
+//                files.stream().map(File::getPath).collect(Collectors.toList()),
+//                files.stream().map(File::getName).collect(Collectors.toList()));
 
         // 更新用户容量
-        user.setSizeUse(user.getSizeUse() - files.stream().mapToLong(File::getFileSize).sum());
+        long sizeUse = user.getSizeUse() - files.stream().mapToLong(File::getFileSize).sum();
+        user.setSizeUse(sizeUse > 0 ? sizeUse : 0);
         boolean updateById = userService.updateById(user);
 
-        return result.getDeletedCount() > 0 && removeBatch && updateById;
+        return result.getDeletedCount() > 0 && updateById;
     }
 
     @Override
@@ -171,14 +174,14 @@ public class FileServiceImpl implements FileService {
         this.isFolderRepeat(bucketName, path, newName);
 
         Pattern pattern = Pattern.compile("^" + oldFolderPath.replace("/", "\\/") + "\\/" + "(.*)");
-        // 递归搜索该文件夹下所有内容后续更新
+        // 递归搜索该文件夹下所有内容
         Query queryAll = Query.query(new Criteria()
                 .orOperator(Criteria.where("path").is(oldFolderPath), Criteria.where("path").regex(pattern)));
-        List<File> list = mongoTemplate.find(queryAll, File.class, bucketName);
+        List<File> files = mongoTemplate.find(queryAll, File.class, bucketName);
 
         // 更新该文件夹下所有文件（包括文件夹）的路径
-        Map<String, String> map = new HashMap<>(list.size());
-        for (File file : list) {
+        Map<String, String> map = new HashMap<>(files.size());
+        for (File file : files) {
             String filePath = file.getPath();
             int i = filePath.indexOf(oldFolderPath) + oldFolderPath.length();
             file.setPath(newFolderPath + filePath.substring(i));
@@ -200,17 +203,113 @@ public class FileServiceImpl implements FileService {
                 .set("modifyTime", new Date());
         mongoTemplate.updateFirst(queryFolder, updateFolder, bucketName);
 
+
         return true;
     }
 
     @Override
     public boolean moveFolder(String oldPath, String newPath, String folderName, User user) {
-        return false;
+        // 校验
+        if (StrUtil.hasBlank(oldPath, newPath, folderName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldPath.equals(newPath)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "前后路径一样");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 文件夹路径加工
+        String oldFolderPath = this.folderPathProcess(oldPath, folderName);
+        String newFolderPath = this.folderPathProcess(newPath, folderName);
+
+        // 验证文件夹是否存在,以及是否重复
+        this.isFolderExist(bucketName, oldFolderPath);
+        this.isFolderRepeat(bucketName, newPath, folderName);
+
+        Pattern pattern = Pattern.compile("^" + oldFolderPath.replace("/", "\\/") + "\\/" + "(.*)");
+        // 递归搜索该文件夹下所有内容
+        Query queryAll = Query.query(new Criteria()
+                .orOperator(Criteria.where("path").is(oldFolderPath), Criteria.where("path").regex(pattern)));
+        List<File> files = mongoTemplate.find(queryAll, File.class, bucketName);
+
+        // 更新该文件夹下所有文件（包括文件夹）的路径
+        Map<String, String> map = new HashMap<>(files.size());
+        for (File file : files) {
+            String filePath = file.getPath();
+            int i = filePath.indexOf(oldFolderPath) + oldFolderPath.length();
+            file.setPath(newFolderPath + filePath.substring(i));
+            map.put(filePath, file.getPath());
+            if (file.getIsFolder() == 0) {
+                minioUtil.move(bucketName, filePath, file.getPath(), file.getName(), file.getName());
+            }
+        }
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Query query = Query.query(Criteria.where("path").is(entry.getKey()));
+            Update update = Update.update("path", entry.getValue());
+            mongoTemplate.updateMulti(query, update, bucketName);
+        }
+
+        // 更新该文件夹
+        Query queryFolder = Query.query(Criteria.where("path").is(oldPath).and("name").is(folderName).and("isFolder").is(1));
+        Update updateFolder = new Update()
+                .set("path", newPath)
+                .set("modifyTime", new Date());
+        mongoTemplate.updateFirst(queryFolder, updateFolder, bucketName);
+
+        return true;
     }
 
     @Override
     public boolean copyFolder(String oldPath, String newPath, String folderName, User user) {
-        return false;
+        // 校验
+        if (StrUtil.hasBlank(oldPath, newPath, folderName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (oldPath.equals(newPath)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "前后路径一样");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 文件夹路径加工
+        String oldFolderPath = this.folderPathProcess(oldPath, folderName);
+        String newFolderPath = this.folderPathProcess(newPath, folderName);
+
+        // 验证文件夹是否存在,以及是否重复
+        this.isFolderExist(bucketName, oldFolderPath);
+        this.isFolderRepeat(bucketName, newPath, folderName);
+
+        Pattern pattern = Pattern.compile("^" + oldFolderPath.replace("/", "\\/") + "\\/" + "(.*)");
+        // 递归搜索该文件夹下所有内容
+        Query queryAll = Query.query(new Criteria()
+                .orOperator(Criteria.where("path").is(oldFolderPath), Criteria.where("path").regex(pattern)));
+        List<File> files = mongoTemplate.find(queryAll, File.class, bucketName);
+
+        // 更新该文件夹下所有文件（包括文件夹）的路径
+        for (File file : files) {
+            String filePath = file.getPath();
+            int i = filePath.indexOf(oldFolderPath) + oldFolderPath.length();
+            file.setPath(newFolderPath + filePath.substring(i));
+            file.setId(null);
+            if (file.getIsFolder() == 0) {
+                minioUtil.copy(bucketName, filePath, file.getPath(), file.getName(), file.getName());
+            }
+            mongoTemplate.insert(file, bucketName);
+        }
+
+        // 更新该文件夹
+        Query queryFolder = Query.query(Criteria.where("path").is(oldPath).and("name").is(folderName).and("isFolder").is(1));
+        File file = mongoTemplate.find(queryFolder, File.class, bucketName).get(0);
+        file.setId(null);
+        file.setPath(newPath);
+        file.setModifyTime(new Date());
+        mongoTemplate.insert(file, bucketName);
+
+        // 更新用户容量
+        long sizeUse = user.getSizeUse() + files.stream().mapToLong(File::getFileSize).sum();
+        user.setSizeUse(sizeUse > 0 ? sizeUse : 0);
+        return userService.updateById(user);
     }
 
     @Override
@@ -261,12 +360,12 @@ public class FileServiceImpl implements FileService {
         Query query = Query.query(Criteria.where("path").is(path)
                 .and("name").is(fileName)
                 .and("isFolder").is(0));
-        List<File> files = mongoTemplate.find(query, File.class, bucketName);
+        File file = mongoTemplate.find(query, File.class, bucketName).get(0);
 
         // 删除文件, 更新容量
         minioUtil.remove(bucketName, path, fileName);
         mongoTemplate.remove(query, File.class, bucketName);
-        user.setSizeUse(user.getSizeUse() - files.get(0).getFileSize());
+        user.setSizeUse(user.getSizeUse() - file.getFileSize());
         userService.updateById(user);
 
         return true;
@@ -422,7 +521,7 @@ public class FileServiceImpl implements FileService {
                 .and("isFolder").is(0));
         long count = mongoTemplate.count(queryCount, File.class, bucketName);
         if (count <= 0) {
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件重复");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件不存在");
         }
     }
 
