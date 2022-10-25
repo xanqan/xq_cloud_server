@@ -141,9 +141,6 @@ public class FileServiceImpl implements FileService {
         for (File file : files) {
             minioUtil.remove(bucketName, file.getPath(), file.getName());
         }
-//        boolean removeBatch = minioUtil.removeBatch(bucketName,
-//                files.stream().map(File::getPath).collect(Collectors.toList()),
-//                files.stream().map(File::getName).collect(Collectors.toList()));
 
         // 更新用户容量
         long sizeUse = user.getSizeUse() - files.stream().mapToLong(File::getFileSize).sum();
@@ -202,7 +199,6 @@ public class FileServiceImpl implements FileService {
                 .set("name", newName)
                 .set("modifyTime", new Date());
         mongoTemplate.updateFirst(queryFolder, updateFolder, bucketName);
-
 
         return true;
     }
@@ -451,11 +447,13 @@ public class FileServiceImpl implements FileService {
         Query query = Query.query(Criteria.where("path").is(oldPath)
                 .and("name").is(fileName)
                 .and("isFolder").is(0));
-        Update update = Update.update("path", newPath);
-        mongoTemplate.updateFirst(query, update, bucketName);
+        File file = mongoTemplate.find(query, File.class, bucketName).get(0);
+        mongoTemplate.insert(file, bucketName);
         minioUtil.copy(bucketName, oldPath, newPath, fileName, fileName);
 
-        return true;
+        long sizeUse = user.getSizeUse() + file.getFileSize();
+        user.setSizeUse(sizeUse > 0 ? sizeUse : 0);
+        return userService.updateById(user);
     }
 
     /**

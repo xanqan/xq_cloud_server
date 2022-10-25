@@ -144,4 +144,15 @@ public class FileController {
         boolean result = fileService.move(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
+
+    @Operation(summary = "文件复制")
+    @PostMapping("/copy")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> copy(@RequestParam("oldPath") String oldPath,
+                                      @RequestParam("newPath") String newPath,
+                                      @RequestParam("fileName") String fileName,
+                                      @RequestParam("user") String user) {
+        boolean result = fileService.copy(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
 }
