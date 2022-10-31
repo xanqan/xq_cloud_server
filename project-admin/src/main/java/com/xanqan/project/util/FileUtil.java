@@ -23,6 +23,7 @@ import java.util.Set;
 public class FileUtil {
 
     public static Set<String> photo;
+    public static final String PHOTO = "photo";
 
     static {
         photo = new HashSet<>();
@@ -33,7 +34,21 @@ public class FileUtil {
     /**
      * 入口方法, 根据文件后缀再调用到对于的方法
      *
-     * @param path 文件的路径
+     * @param name 文件名
+     * @return 文件类型
+     */
+    public String findType(String name) {
+        String fileSuffix = name != null ? name.substring(name.lastIndexOf(".")) : null;
+        if (photo.contains(fileSuffix)) {
+            return PHOTO;
+        }
+        return null;
+    }
+
+    /**
+     * 入口方法, 根据文件后缀再调用到对于的方法
+     *
+     * @param path          文件的路径
      * @param multipartFile 文件封装
      * @return 处理好的 File
      */
@@ -57,6 +72,7 @@ public class FileUtil {
             file.setName(multipartFile.getOriginalFilename());
             file.setPath(path);
             file.setFileSize(fileSize);
+            file.setType(PHOTO);
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setSize(size);

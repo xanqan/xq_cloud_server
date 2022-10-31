@@ -389,6 +389,7 @@ public class FileServiceImpl implements FileService {
                 .and("isFolder").is(0));
         Update update = new Update()
                 .set("name", newName)
+                .set("type", fileUtil.findType(newName))
                 .set("modifyTime", new Date());
         mongoTemplate.updateFirst(query, update, bucketName);
         minioUtil.move(bucketName, path, path, oldName, newName);

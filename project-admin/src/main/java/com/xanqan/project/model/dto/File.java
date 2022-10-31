@@ -41,6 +41,12 @@ public class File {
     private long fileSize;
 
     /**
+     * 文件类型
+     */
+    @Field("type")
+    private String type;
+
+    /**
      * 创建时间
      */
     @Field("createTime")
