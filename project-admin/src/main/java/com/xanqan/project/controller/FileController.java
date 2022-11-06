@@ -5,14 +5,12 @@ import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.vo.FileInfo;
 import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -32,7 +30,7 @@ public class FileController {
     private FileService fileService;
 
     @Operation(summary = "获取路径下全部文件")
-    @PostMapping("/getFileList")
+    @GetMapping("/getFileList")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<List<File>> getFileList(@RequestParam("path") String path,
                                                 @RequestParam("user") String user) {
@@ -63,10 +61,9 @@ public class FileController {
     @Operation(summary = "文件夹删除")
     @PostMapping("/deleteFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> deleteFolder(@RequestParam("path") String path,
-                                              @RequestParam("folderName") String folderName,
+    public BaseResponse<Boolean> deleteFolder(@RequestBody FileInfo fileInfo,
                                               @RequestParam("user") String user) {
-        boolean result = fileService.deleteFolder(path, folderName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.deleteFolder(fileInfo.getPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -92,7 +89,7 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "文件夹拷贝")
+    @Operation(summary = "文件夹复制")
     @PostMapping("/copyFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> copyFolder(@RequestParam("oldPath") String oldPath,
@@ -116,10 +113,9 @@ public class FileController {
     @Operation(summary = "文件删除")
     @PostMapping("/delete")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> delete(@RequestParam("path") String path,
-                                        @RequestParam("fileName") String fileName,
+    public BaseResponse<Boolean> delete(@RequestBody FileInfo fileInfo,
                                         @RequestParam("user") String user) {
-        boolean result = fileService.remove(path, fileName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.remove(fileInfo.getPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -137,22 +133,18 @@ public class FileController {
     @Operation(summary = "文件移动")
     @PostMapping("/move")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> move(@RequestParam("oldPath") String oldPath,
-                                      @RequestParam("newPath") String newPath,
-                                      @RequestParam("fileName") String fileName,
+    public BaseResponse<Boolean> move(@RequestBody FileInfo fileInfo,
                                       @RequestParam("user") String user) {
-        boolean result = fileService.move(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.move(fileInfo.getPath(), fileInfo.getNewPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "文件复制")
     @PostMapping("/copy")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> copy(@RequestParam("oldPath") String oldPath,
-                                      @RequestParam("newPath") String newPath,
-                                      @RequestParam("fileName") String fileName,
+    public BaseResponse<Boolean> copy(@RequestBody FileInfo fileInfo,
                                       @RequestParam("user") String user) {
-        boolean result = fileService.copy(oldPath, newPath, fileName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.copy(fileInfo.getPath(), fileInfo.getNewPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 }
