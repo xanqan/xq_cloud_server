@@ -449,6 +449,8 @@ public class FileServiceImpl implements FileService {
                 .and("name").is(fileName)
                 .and("isFolder").is(0));
         File file = mongoTemplate.find(query, File.class, bucketName).get(0);
+        file.setId(null);
+        file.setPath(newPath);
         mongoTemplate.insert(file, bucketName);
         minioUtil.copy(bucketName, oldPath, newPath, fileName, fileName);
 
