@@ -51,10 +51,9 @@ public class FileController {
     @Operation(summary = "文件夹创建")
     @PostMapping("/createFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<File> createFolder(@RequestParam("path") String path,
-                                           @RequestParam("folderName") String folderName,
+    public BaseResponse<File> createFolder(@RequestBody FileInfo fileInfo,
                                            @RequestParam("user") String user) {
-        File result = fileService.createFolder(path, folderName, JSONUtil.toBean(user, User.class));
+        File result = fileService.createFolder(fileInfo.getPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -70,33 +69,27 @@ public class FileController {
     @Operation(summary = "文件夹重命名")
     @PostMapping("/reNameFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> reNameFolder(@RequestParam("path") String path,
-                                              @RequestParam("oldName") String oldName,
-                                              @RequestParam("newName") String newName,
+    public BaseResponse<Boolean> reNameFolder(@RequestBody FileInfo fileInfo,
                                               @RequestParam("user") String user) {
-        boolean result = fileService.reNameFolder(path, oldName, newName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.reNameFolder(fileInfo.getPath(), fileInfo.getName(), fileInfo.getNewName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "文件夹移动")
     @PostMapping("/moveFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> moveFolder(@RequestParam("oldPath") String oldPath,
-                                            @RequestParam("newPath") String newPath,
-                                            @RequestParam("folderName") String folderName,
+    public BaseResponse<Boolean> moveFolder(@RequestBody FileInfo fileInfo,
                                             @RequestParam("user") String user) {
-        boolean result = fileService.moveFolder(oldPath, newPath, folderName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.moveFolder(fileInfo.getPath(), fileInfo.getNewPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "文件夹复制")
     @PostMapping("/copyFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> copyFolder(@RequestParam("oldPath") String oldPath,
-                                            @RequestParam("newPath") String newPath,
-                                            @RequestParam("folderName") String folderName,
+    public BaseResponse<Boolean> copyFolder(@RequestBody FileInfo fileInfo,
                                             @RequestParam("user") String user) {
-        boolean result = fileService.copyFolder(oldPath, newPath, folderName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.copyFolder(fileInfo.getPath(), fileInfo.getNewPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
@@ -122,11 +115,9 @@ public class FileController {
     @Operation(summary = "文件重命名")
     @PostMapping("/reName")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> reName(@RequestParam("path") String path,
-                                        @RequestParam("oldName") String oldName,
-                                        @RequestParam("newName") String newName,
+    public BaseResponse<Boolean> reName(@RequestBody FileInfo fileInfo,
                                         @RequestParam("user") String user) {
-        boolean result = fileService.reName(path, oldName, newName, JSONUtil.toBean(user, User.class));
+        boolean result = fileService.reName(fileInfo.getPath(), fileInfo.getName(), fileInfo.getNewName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
