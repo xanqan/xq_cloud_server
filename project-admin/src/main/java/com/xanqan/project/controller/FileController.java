@@ -94,7 +94,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件上传")
-    @PostMapping("/upload")
+    @PutMapping("/upload")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<File> upload(@RequestParam("path") String path,
                                      @RequestParam("file") MultipartFile multipartFile,
