@@ -55,13 +55,14 @@ public class FileUtil {
     public File read(String path, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
         String fileSuffix = fileName != null ? fileName.substring(fileName.lastIndexOf(".")) : null;
+        String name = fileName != null ? fileName.substring(fileName.lastIndexOf("/") + 1) : null;
         if (photo.contains(fileSuffix)) {
-            return readPhoto(path, multipartFile);
+            return readPhoto(path, name, multipartFile);
         }
         return null;
     }
 
-    private File readPhoto(String path, MultipartFile multipartFile) {
+    private File readPhoto(String path, String name, MultipartFile multipartFile) {
         InputStream in = null;
         File file = new File();
         try {
@@ -69,7 +70,7 @@ public class FileUtil {
             long fileSize = in.available();
             BufferedImage bufferedImage = ImageIO.read(in);
             String size = bufferedImage.getWidth() + "*" + bufferedImage.getHeight();
-            file.setName(multipartFile.getOriginalFilename());
+            file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
             file.setType(PHOTO);

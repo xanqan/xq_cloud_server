@@ -2,6 +2,7 @@ package com.xanqan.project.util;
 
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
+import com.xanqan.project.model.dto.File;
 import io.minio.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -97,13 +98,18 @@ public class MinioUtil {
      * 文件上传
      *
      * @param bucketName    存储桶名
-     * @param path          文件路径
+     * @param file          文件信息
      * @param multipartFile 文件封装
      * @return 文件的可访问路径
      */
-    public String upload(String bucketName, String path, MultipartFile multipartFile) {
+    public String upload(String bucketName, File file, MultipartFile multipartFile) {
         existBucket(bucketName);
-        String object = path + ROOT_DIRECTORY + multipartFile.getOriginalFilename();
+        String object;
+        if (ROOT_DIRECTORY.equals(file.getPath())) {
+            object = ROOT_DIRECTORY + file.getName();
+        } else {
+            object = file.getPath() + ROOT_DIRECTORY + file.getName();
+        }
         InputStream in = null;
         try {
             in = multipartFile.getInputStream();

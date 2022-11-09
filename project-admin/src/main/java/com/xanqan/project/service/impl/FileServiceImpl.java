@@ -335,9 +335,9 @@ public class FileServiceImpl implements FileService {
         }
 
         // 上传文件, 更新容量
-        minioUtil.upload(bucketName, path, multipartFile);
         mongoTemplate.insert(file, bucketName);
         user.setSizeUse(file.getFileSize() + user.getSizeUse());
+        minioUtil.upload(bucketName, file, multipartFile);
         userService.updateById(user);
 
         return file;
