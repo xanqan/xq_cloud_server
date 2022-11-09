@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,6 +56,23 @@ public class FileController {
                                            @RequestParam("user") String user) {
         File result = fileService.createFolder(fileInfo.getPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "文件夹批量创建")
+    @PostMapping("/createFolderBatch")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<File> createFolderBatch(@RequestBody List<String> pathSet,
+                                                @RequestParam("user") String user) {
+        List<File> files = new ArrayList<>();
+        for (String value : pathSet) {
+            int index = value.lastIndexOf("/");
+            if (index == 0) {
+                files.add(fileService.createFolder("/", value.substring(index + 1), JSONUtil.toBean(user, User.class)));
+            } else {
+                files.add(fileService.createFolder(value.substring(0, index), value.substring(index + 1), JSONUtil.toBean(user, User.class)));
+            }
+        }
+        return ResultUtils.success(files.get(0));
     }
 
     @Operation(summary = "文件夹删除")
