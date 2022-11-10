@@ -72,7 +72,7 @@ public class FileController {
                 files.add(fileService.createFolder(value.substring(0, index), value.substring(index + 1), JSONUtil.toBean(user, User.class)));
             }
         }
-        return ResultUtils.success(files.get(0));
+        return ResultUtils.success(files.size() > 0 ? files.get(0) : null);
     }
 
     @Operation(summary = "文件夹删除")
