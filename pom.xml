@@ -76,6 +76,11 @@
             <artifactId>hutool-all</artifactId>
             <version>5.4.0</version>
         </dependency>
+        <!--redis依赖配置-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -154,8 +159,9 @@
                         <imageName>xqcloud/${project.artifactId}:${project.version}</imageName>
                         <baseImage>ascdc/jdk8</baseImage>
                         <dockerHost>http://121.196.210.13:2375</dockerHost>
-<!--                        <dockerHost>http://192.168.1.150:2375</dockerHost>-->
-                        <entryPoint>["java","-jar","-Dspring.profiles.active=prod","/${project.build.finalName}.jar"]</entryPoint>
+                        <!--                        <dockerHost>http://192.168.1.150:2375</dockerHost>-->
+                        <entryPoint>["java","-jar","-Dspring.profiles.active=prod","/${project.build.finalName}.jar"]
+                        </entryPoint>
                         <resources>
                             <resource>
                                 <targetPath>/</targetPath>

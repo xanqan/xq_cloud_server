@@ -22,6 +22,18 @@ spring:
       database: xqcloud
       host: 121.196.210.13
       port: 27017
+  redis:
+    host: 121.196.210.13
+    database: 0
+    port: 6379
+    password: 123456
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    timeout: 3000ms
   servlet:
     multipart:
       enabled: true
