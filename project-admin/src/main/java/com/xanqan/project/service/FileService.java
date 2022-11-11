@@ -2,6 +2,7 @@ package com.xanqan.project.service;
 
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.vo.FileChunk;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -137,4 +138,6 @@ public interface FileService {
      * @return 文件的可访问路径
      */
     boolean copy(String oldPath, String newPath, String fileName, User user);
+
+    List<FileChunk> initBigFileUpload(String path, String fileName, List<FileChunk> fileChunks, User user);
 }

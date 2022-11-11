@@ -2,6 +2,8 @@ package com.xanqan.project.model.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 文件信息接收类
  *
@@ -18,5 +20,5 @@ public class FileInfo {
 
     private String newName;
 
-
+    private List<FileChunk> fileChunks;
 }

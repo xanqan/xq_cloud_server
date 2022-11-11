@@ -5,6 +5,7 @@ import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.vo.FileChunk;
 import com.xanqan.project.model.vo.FileInfo;
 import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
@@ -154,6 +155,15 @@ public class FileController {
     public BaseResponse<Boolean> copy(@RequestBody FileInfo fileInfo,
                                       @RequestParam("user") String user) {
         boolean result = fileService.copy(fileInfo.getPath(), fileInfo.getNewPath(), fileInfo.getName(), JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "大文件上传初始化")
+    @PostMapping("/initBigFileUpload")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<List<FileChunk>> initBigFileUpload(@RequestBody FileInfo fileInfo,
+                                                           @RequestParam("user") String user) {
+        List<FileChunk> result = fileService.initBigFileUpload(fileInfo.getPath(), fileInfo.getName(), fileInfo.getFileChunks(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 }

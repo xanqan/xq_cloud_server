@@ -6,7 +6,9 @@ import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.vo.FileChunk;
 import com.xanqan.project.service.FileService;
+import com.xanqan.project.service.RedisService;
 import com.xanqan.project.service.UserService;
 import com.xanqan.project.util.FileUtil;
 import com.xanqan.project.util.MinioUtil;
@@ -39,6 +41,8 @@ public class FileServiceImpl implements FileService {
     private MongoTemplate mongoTemplate;
     @Resource
     private FileUtil fileUtil;
+    @Resource
+    private RedisService redisService;
 
     /**
      * 根目录
@@ -457,6 +461,40 @@ public class FileServiceImpl implements FileService {
         long sizeUse = user.getSizeUse() + file.getFileSize();
         user.setSizeUse(sizeUse > 0 ? sizeUse : 0);
         return userService.updateById(user);
+    }
+
+    @Override
+    public List<FileChunk> initBigFileUpload(String path, String fileName, List<FileChunk> fileChunks, User user) {
+        if (StrUtil.hasBlank(path, fileName) || fileChunks.size() <= 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        // 验证文件夹是否存在
+        this.isFolderExist(bucketName, path);
+
+        // 验证文件是否重复
+        this.isRepeat(bucketName, path, fileName);
+
+        String key = this.folderPathProcess(path, fileName);
+        Map<Object, Object> map = redisService.getHash(key);
+        if (map.size() <= 0) {
+            for (FileChunk fileChunk : fileChunks) {
+                map.put(fileChunk.getId().toString(), fileChunk.getMd5());
+            }
+            redisService.setHash(key, map);
+            return null;
+        } else {
+            fileChunks.clear();
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                FileChunk fileChunk = new FileChunk();
+                fileChunk.setId(Integer.parseInt((String) entry.getKey()));
+                fileChunk.setMd5((String) entry.getValue());
+                fileChunks.add(fileChunk);
+            }
+            return fileChunks;
+        }
     }
 
     /**
