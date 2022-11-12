@@ -1,6 +1,7 @@
 package com.xanqan.project.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.mongodb.client.result.DeleteResult;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -518,6 +521,25 @@ public class FileServiceImpl implements FileService {
         } else if (!map.containsKey(chunkId)) {
             throw new BusinessException(ResultCode.FAILED, "没有该分片信息或者已经上传完成");
         } else {
+            InputStream in = null;
+            String md5 = null;
+            try {
+                in = multipartFile.getInputStream();
+                md5 = SecureUtil.md5(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (!map.get(chunkId).equals(md5)) {
+                throw new BusinessException(ResultCode.FAILED, "分片校验不通过");
+            }
             minioUtil.upload(bucketName, file, multipartFile);
             redisService.removeHashKey(path, chunkId);
             return map.size() <= 1;
