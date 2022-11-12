@@ -50,6 +50,11 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public void removeHashKey(String key, String hashKey) {
+        stringRedisTemplate.opsForHash().delete(key, hashKey);
+    }
+
+    @Override
     public Long increment(String key, long delta) {
         return stringRedisTemplate.opsForValue().increment(key, delta);
     }

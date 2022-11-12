@@ -13,6 +13,9 @@ public interface RedisService {
      */
     void set(String key, String value);
 
+    /**
+     * 存储hash
+     */
     void setHash(String key, Map<Object, Object> map);
 
     /**
@@ -20,6 +23,9 @@ public interface RedisService {
      */
     String get(String key);
 
+    /**
+     * 获取hash
+     */
     Map<Object, Object> getHash(String key);
 
     /**
@@ -31,6 +37,8 @@ public interface RedisService {
      * 删除数据
      */
     void remove(String key);
+
+    void removeHashKey(String key, String hashKey);
 
     /**
      * 自增操作
