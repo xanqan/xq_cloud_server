@@ -140,4 +140,6 @@ public interface FileService {
     boolean copy(String oldPath, String newPath, String fileName, User user);
 
     List<FileChunk> initBigFileUpload(String path, String fileName, List<FileChunk> fileChunks, User user);
+
+    boolean bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user);
 }

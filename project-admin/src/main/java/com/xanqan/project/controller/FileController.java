@@ -166,4 +166,15 @@ public class FileController {
         List<FileChunk> result = fileService.initBigFileUpload(fileInfo.getPath(), fileInfo.getName(), fileInfo.getFileChunks(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
+
+    @Operation(summary = "大文件分片上传")
+    @PutMapping("/bigFileUpload")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> bigFileUpload(@RequestParam("path") String path,
+                                               @RequestParam("chunkId") String chunkId,
+                                               @RequestParam("file") MultipartFile multipartFile,
+                                               @RequestParam("user") String user) {
+        boolean result = fileService.bigFileUpload(path, chunkId, multipartFile, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
 }

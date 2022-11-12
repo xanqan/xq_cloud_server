@@ -484,7 +484,6 @@ public class FileServiceImpl implements FileService {
                 map.put(fileChunk.getId().toString(), fileChunk.getMd5());
             }
             redisService.setHash(key, map);
-            return null;
         } else {
             fileChunks.clear();
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
@@ -493,7 +492,35 @@ public class FileServiceImpl implements FileService {
                 fileChunk.setMd5((String) entry.getValue());
                 fileChunks.add(fileChunk);
             }
-            return fileChunks;
+        }
+        return fileChunks;
+    }
+
+    @Override
+    public boolean bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user) {
+        // 校验
+        if (StrUtil.hasBlank(path, chunkId)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (multipartFile.isEmpty() || multipartFile.getSize() <= 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "文件为空");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        File file = new File();
+        file.setName(chunkId);
+        file.setPath(path);
+
+        Map<Object, Object> map = redisService.getHash(path);
+        if (map.size() <= 0) {
+            throw new BusinessException(ResultCode.FAILED, "没有该文件分片信息");
+        } else if (!map.containsKey(chunkId)) {
+            throw new BusinessException(ResultCode.FAILED, "没有该分片信息或者已经上传完成");
+        } else {
+            minioUtil.upload(bucketName, file, multipartFile);
+            redisService.removeHashKey(path, chunkId);
+            return map.size() <= 1;
         }
     }
 
