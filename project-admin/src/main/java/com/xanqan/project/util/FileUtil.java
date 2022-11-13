@@ -9,10 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 文件信息处理工具类
@@ -22,13 +19,19 @@ import java.util.Set;
 @Component
 public class FileUtil {
 
-    public static Set<String> photo;
-    public static final String PHOTO = "photo";
+    private static final HashMap<String, String> VIEW_CONTENT_TYPE;
+    private static final Set<String> PHOTO;
 
     static {
-        photo = new HashSet<>();
-        String[] photoType = {".png", ".jpg", ".jpeg", ".gif", ".bmp"};
-        photo.addAll(Arrays.asList(photoType));
+        VIEW_CONTENT_TYPE = new HashMap<>();
+        VIEW_CONTENT_TYPE.put("default", "application/octet-stream");
+        VIEW_CONTENT_TYPE.put("jpg", "image/jpeg");
+        VIEW_CONTENT_TYPE.put("gif", "image/gif");
+        VIEW_CONTENT_TYPE.put("png", "image/png");
+        VIEW_CONTENT_TYPE.put("jpeg", "image/jpeg");
+        PHOTO = new HashSet<>();
+        String[] photoType = {"image/jpeg", "image/gif", "image/png", "image/jpeg"};
+        PHOTO.addAll(Arrays.asList(photoType));
     }
 
     /**
@@ -38,11 +41,14 @@ public class FileUtil {
      * @return 文件类型
      */
     public String findType(String name) {
-        String fileSuffix = name != null ? name.substring(name.lastIndexOf(".")) : null;
-        if (photo.contains(fileSuffix)) {
-            return PHOTO;
-        }
-        return null;
+        String fileSuffix = name != null ? name.substring(name.lastIndexOf(".") + 1) : null;
+        String contentType = VIEW_CONTENT_TYPE.get(fileSuffix);
+        return contentType != null ? contentType : VIEW_CONTENT_TYPE.get("default");
+    }
+
+
+    public boolean isPhoto(String contentType) {
+        return PHOTO.contains(contentType);
     }
 
     /**
@@ -54,9 +60,9 @@ public class FileUtil {
      */
     public File read(String path, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
-        String fileSuffix = fileName != null ? fileName.substring(fileName.lastIndexOf(".")) : null;
         String name = fileName != null ? fileName.substring(fileName.lastIndexOf("/") + 1) : null;
-        if (photo.contains(fileSuffix)) {
+        String contentType = multipartFile.getContentType();
+        if (PHOTO.contains(contentType)) {
             return readPhoto(path, name, multipartFile);
         }
         return null;
@@ -73,7 +79,7 @@ public class FileUtil {
             file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
-            file.setType(PHOTO);
+            file.setType(this.findType(name));
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setSize(size);
@@ -81,12 +87,12 @@ public class FileUtil {
         } catch (Exception e) {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         } finally {
-            if (in != null) {
-                try {
+            try {
+                if (in != null) {
                     in.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return file;

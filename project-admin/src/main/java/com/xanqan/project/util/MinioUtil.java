@@ -4,12 +4,17 @@ import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.dto.File;
 import io.minio.*;
+import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * MinIO 服务封装工具类
@@ -20,6 +25,8 @@ import java.io.InputStream;
 public class MinioUtil {
     @Resource
     private MinioClient minioClient;
+    @Resource
+    private FileUtil fileUtil;
 
     @Value("${minio.url}")
     private String url;
@@ -94,6 +101,22 @@ public class MinioUtil {
         return true;
     }
 
+    public GetObjectResponse getFile(String bucketName, String path, String filename) {
+        String object;
+        if (ROOT_DIRECTORY.equals(path)) {
+            object = ROOT_DIRECTORY + filename;
+        } else {
+            object = path + ROOT_DIRECTORY + filename;
+        }
+        GetObjectResponse getObjectResponse = null;
+        try {
+            getObjectResponse = minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(object).build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return getObjectResponse;
+    }
+
     /**
      * 文件上传
      *
@@ -132,6 +155,44 @@ public class MinioUtil {
             }
         }
         return url + ROOT_DIRECTORY + bucketName + object;
+    }
+
+    public void uploadImg(String bucketName, String fileName, InputStream in) {
+        try {
+            minioClient.putObject(PutObjectArgs
+                    .builder()
+                    .bucket(bucketName)
+                    .object(ROOT_DIRECTORY.concat(fileName).concat(".jpg"))
+                    .stream(in, in.available(), -1)
+                    .contentType("image/jpeg")
+                    .build());
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
+        }
+    }
+
+    public void compose(String bucketName, String path, String fileName) {
+        String object = path.concat(fileName);
+        String objectChunk = object.concat("_chunk");
+        List<String> objects = new ArrayList<>();
+        List<ComposeSource> sources = new ArrayList<>();
+        try {
+            Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucketName).prefix(objectChunk).recursive(true).build());
+            for (Result<Item> itemResult : results) {
+                objects.add(itemResult.get().objectName());
+            }
+            for (String sourcesObject : objects) {
+                sources.add(ComposeSource.builder().bucket(bucketName).object(sourcesObject).build());
+            }
+            Map<String, String> userMetadata = new HashMap<>(2);
+            userMetadata.put("Content-Type", fileUtil.findType(object));
+            minioClient.composeObject(ComposeObjectArgs.builder().bucket(bucketName).object(object).sources(sources).extraHeaders(userMetadata).build());
+            for (String sourcesObject : objects) {
+                minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(sourcesObject).build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

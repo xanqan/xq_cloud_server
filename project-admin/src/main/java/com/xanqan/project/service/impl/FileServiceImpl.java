@@ -13,6 +13,8 @@ import com.xanqan.project.service.RedisService;
 import com.xanqan.project.service.UserService;
 import com.xanqan.project.util.FileUtil;
 import com.xanqan.project.util.MinioUtil;
+import io.minio.GetObjectResponse;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,12 +23,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -342,10 +345,23 @@ public class FileServiceImpl implements FileService {
         }
 
         // 上传文件, 更新容量
-        mongoTemplate.insert(file, bucketName);
+        File insert = mongoTemplate.insert(file, bucketName);
         user.setSizeUse(file.getFileSize() + user.getSizeUse());
-        minioUtil.upload(bucketName, file, multipartFile);
+        minioUtil.upload(bucketName, insert, multipartFile);
         userService.updateById(user);
+
+        //图片文件生成缩略图
+        if (fileUtil.isPhoto(file.getType())) {
+            try {
+                BufferedImage bufferedImage = Thumbnails.of(multipartFile.getInputStream()).size(200, 200).asBufferedImage();
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpg", os);
+                InputStream in = new ByteArrayInputStream(os.toByteArray());
+                minioUtil.uploadImg(bucketName, insert.getId(), in);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         return file;
     }
@@ -500,7 +516,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user) {
+    public File bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user) {
         // 校验
         if (StrUtil.hasBlank(path, chunkId)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -513,7 +529,7 @@ public class FileServiceImpl implements FileService {
 
         File file = new File();
         file.setName(chunkId);
-        file.setPath(path);
+        file.setPath(path + "_chunk");
 
         Map<Object, Object> map = redisService.getHash(path);
         if (map.size() <= 0) {
@@ -529,12 +545,12 @@ public class FileServiceImpl implements FileService {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (in != null) {
-                    try {
+                try {
+                    if (in != null) {
                         in.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             if (!map.get(chunkId).equals(md5)) {
@@ -542,9 +558,62 @@ public class FileServiceImpl implements FileService {
             }
             minioUtil.upload(bucketName, file, multipartFile);
             redisService.removeHashKey(path, chunkId);
-            return map.size() <= 1;
+
+            if (map.size() <= 1) {
+                String fileName = path.substring(path.lastIndexOf("/") + 1);
+                path = path.substring(0, path.lastIndexOf("/"));
+                if ("".equals(path)) {
+                    path = ROOT_DIRECTORY;
+                }
+                minioUtil.compose(bucketName, path, fileName);
+                GetObjectResponse getObjectResponse = minioUtil.getFile(bucketName, path, fileName);
+                File fileCompose = new File();
+                fileCompose.setName(fileName);
+                fileCompose.setPath(path);
+                fileCompose.setFileSize(Long.parseLong(Objects.requireNonNull(getObjectResponse.headers().get("Content-Length"))));
+                fileCompose.setType(fileUtil.findType(fileName));
+                fileCompose.setCreateTime(new Date());
+                fileCompose.setModifyTime(new Date());
+                fileCompose.setIsFolder(0);
+                BufferedImage bufferedImage = null;
+                if (fileUtil.isPhoto(fileCompose.getType())) {
+                    try {
+                        bufferedImage = ImageIO.read(getObjectResponse);
+                        fileCompose.setSize(bufferedImage.getWidth() + "*" + bufferedImage.getHeight());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // 验证容量
+                if (fileCompose.getFileSize() + user.getSizeUse() > user.getSizeMax()) {
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "容量不足");
+                }
+
+                // 上传文件, 更新容量
+                File insert = mongoTemplate.insert(fileCompose, bucketName);
+                user.setSizeUse(fileCompose.getFileSize() + user.getSizeUse());
+                userService.updateById(user);
+
+                //图片文件生成缩略图
+                if (fileUtil.isPhoto(fileCompose.getType())) {
+                    try {
+                        BufferedImage thumbnail = Thumbnails.of(bufferedImage).size(200, 200).asBufferedImage();
+                        ByteArrayOutputStream os = new ByteArrayOutputStream();
+                        ImageIO.write(thumbnail, "jpg", os);
+                        InputStream buff = new ByteArrayInputStream(os.toByteArray());
+                        minioUtil.uploadImg(bucketName, insert.getId(), buff);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return fileCompose;
+            }
+            return null;
         }
     }
+
 
     /**
      * 文件夹路径加工，用于后续遍历

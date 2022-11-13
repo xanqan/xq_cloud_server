@@ -170,11 +170,11 @@ public class FileController {
     @Operation(summary = "大文件分片上传")
     @PutMapping("/bigFileUpload")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Boolean> bigFileUpload(@RequestParam("path") String path,
-                                               @RequestParam("chunkId") String chunkId,
-                                               @RequestParam("file") MultipartFile multipartFile,
-                                               @RequestParam("user") String user) {
-        boolean result = fileService.bigFileUpload(path, chunkId, multipartFile, JSONUtil.toBean(user, User.class));
+    public BaseResponse<File> bigFileUpload(@RequestParam("path") String path,
+                                            @RequestParam("chunkId") String chunkId,
+                                            @RequestParam("file") MultipartFile multipartFile,
+                                            @RequestParam("user") String user) {
+        File result = fileService.bigFileUpload(path, chunkId, multipartFile, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 }
