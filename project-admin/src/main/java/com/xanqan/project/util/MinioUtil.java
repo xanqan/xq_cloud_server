@@ -162,7 +162,7 @@ public class MinioUtil {
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(bucketName)
-                    .object(ROOT_DIRECTORY.concat(fileName).concat(".jpg"))
+                    .object(ROOT_DIRECTORY.concat("thumbnail").concat(fileName).concat(".jpg"))
                     .stream(in, in.available(), -1)
                     .contentType("image/jpeg")
                     .build());
