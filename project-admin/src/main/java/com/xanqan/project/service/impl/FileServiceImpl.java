@@ -351,15 +351,24 @@ public class FileServiceImpl implements FileService {
         userService.updateById(user);
 
         //图片文件生成缩略图
+        InputStream thumbnailIn = null;
         if (fileUtil.isPhoto(file.getType())) {
             try {
                 BufferedImage bufferedImage = Thumbnails.of(multipartFile.getInputStream()).size(200, 200).asBufferedImage();
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(bufferedImage, "jpg", os);
-                InputStream in = new ByteArrayInputStream(os.toByteArray());
-                minioUtil.uploadImg(bucketName, insert.getId(), in);
+                thumbnailIn = new ByteArrayInputStream(os.toByteArray());
+                minioUtil.uploadImg(bucketName, insert.getId(), thumbnailIn);
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (thumbnailIn != null) {
+                        thumbnailIn.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -596,18 +605,26 @@ public class FileServiceImpl implements FileService {
                 userService.updateById(user);
 
                 //图片文件生成缩略图
+                InputStream thumbnailIn = null;
                 if (fileUtil.isPhoto(fileCompose.getType())) {
                     try {
                         BufferedImage thumbnail = Thumbnails.of(bufferedImage).size(200, 200).asBufferedImage();
                         ByteArrayOutputStream os = new ByteArrayOutputStream();
                         ImageIO.write(thumbnail, "jpg", os);
-                        InputStream buff = new ByteArrayInputStream(os.toByteArray());
-                        minioUtil.uploadImg(bucketName, insert.getId(), buff);
+                        thumbnailIn = new ByteArrayInputStream(os.toByteArray());
+                        minioUtil.uploadImg(bucketName, insert.getId(), thumbnailIn);
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            if (thumbnailIn != null) {
+                                thumbnailIn.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-
                 return fileCompose;
             }
             return null;
