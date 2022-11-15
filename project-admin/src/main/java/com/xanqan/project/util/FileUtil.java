@@ -22,6 +22,7 @@ public class FileUtil {
     private static final HashMap<String, String> VIEW_CONTENT_TYPE;
     private static final Set<String> PHOTO;
     private static final Set<String> VIDEO;
+    private static final Set<String> AUDIO;
 
     static {
         VIEW_CONTENT_TYPE = new HashMap<>();
@@ -31,12 +32,16 @@ public class FileUtil {
         VIEW_CONTENT_TYPE.put("png", "image/png");
         VIEW_CONTENT_TYPE.put("jpeg", "image/jpeg");
         VIEW_CONTENT_TYPE.put("mp4", "video/mp4");
+        VIEW_CONTENT_TYPE.put("mp3", "audio/mpeg");
         PHOTO = new HashSet<>();
         String[] photoType = {"image/jpeg", "image/gif", "image/png",};
         PHOTO.addAll(Arrays.asList(photoType));
         VIDEO = new HashSet<>();
         String[] videoType = {"video/mp4"};
         VIDEO.addAll(Arrays.asList(videoType));
+        AUDIO = new HashSet<>();
+        String[] audioType = {"audio/mpeg"};
+        AUDIO.addAll(Arrays.asList(audioType));
     }
 
     /**
@@ -71,6 +76,8 @@ public class FileUtil {
             return readPhoto(path, name, multipartFile);
         } else if (VIDEO.contains(contentType)) {
             return readVideo(path, name, multipartFile);
+        } else if (AUDIO.contains(contentType)) {
+            return readAudio(path, name, multipartFile);
         }
         return null;
     }
@@ -106,6 +113,34 @@ public class FileUtil {
     }
 
     private File readVideo(String path, String name, MultipartFile multipartFile) {
+        InputStream in = null;
+        File file = new File();
+        try {
+            in = multipartFile.getInputStream();
+            long fileSize = in.available();
+            file.setName(name);
+            file.setPath(path);
+            file.setFileSize(fileSize);
+            file.setType(this.findType(name));
+            file.setCreateTime(new Date());
+            file.setModifyTime(new Date());
+            file.setIsFolder(0);
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return file;
+    }
+
+
+    private File readAudio(String path, String name, MultipartFile multipartFile) {
         InputStream in = null;
         File file = new File();
         try {

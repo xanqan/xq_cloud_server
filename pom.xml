@@ -32,6 +32,7 @@
         <mongodb-driver-sync.version>4.0.3</mongodb-driver-sync.version>
         <minio.version>8.0.3</minio.version>
         <spring-data-mongodb.version>3.0.0.RELEASE</spring-data-mongodb.version>
+        <thumbnailator.version>0.4.8</thumbnailator.version>
     </properties>
 
     <dependencies>
@@ -76,21 +77,6 @@
             <artifactId>hutool-all</artifactId>
             <version>5.4.0</version>
         </dependency>
-        <!--redis依赖配置-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-            <version>0.4.8</version>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.bytedeco</groupId>-->
-        <!--            <artifactId>javacv-platform</artifactId>-->
-        <!--            <version>1.4.1</version>-->
-        <!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -147,6 +133,12 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
+            </dependency>
+            <!-- 图片处理-->
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>${thumbnailator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
