@@ -139,7 +139,25 @@ public interface FileService {
      */
     boolean copy(String oldPath, String newPath, String fileName, User user);
 
+    /**
+     * 初始化大文件上传
+     *
+     * @param path       文件路径
+     * @param fileName   文件名
+     * @param fileChunks 文件分片MD5
+     * @param user       用户信息
+     * @return 未上传的文件列表
+     */
     List<FileChunk> initBigFileUpload(String path, String fileName, List<FileChunk> fileChunks, User user);
 
+    /**
+     * 初始化大文件上传
+     *
+     * @param path          文件路径
+     * @param chunkId       分片id
+     * @param multipartFile 文件封装
+     * @param user          用户信息
+     * @return 未上传的文件列表
+     */
     File bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user);
 }

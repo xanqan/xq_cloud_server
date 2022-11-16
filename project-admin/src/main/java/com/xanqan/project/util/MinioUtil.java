@@ -157,6 +157,14 @@ public class MinioUtil {
         return url + ROOT_DIRECTORY + bucketName + object;
     }
 
+    /**
+     * 上传缩略图
+     *
+     * @param bucketName 存储桶名
+     * @param fileName   文件名
+     * @param in         文件输入流
+     * @author xanqan
+     */
     public void uploadImg(String bucketName, String fileName, InputStream in) {
         try {
             minioClient.putObject(PutObjectArgs
@@ -171,6 +179,14 @@ public class MinioUtil {
         }
     }
 
+    /**
+     * 合并文件
+     *
+     * @param bucketName 存储桶名
+     * @param path       文件路径
+     * @param fileName   文件名
+     * @author xanqan
+     */
     public void compose(String bucketName, String path, String fileName) {
         String object = path.concat(fileName);
         String objectChunk = object.concat("_chunk");
