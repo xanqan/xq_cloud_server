@@ -7,6 +7,8 @@ import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
 import com.xanqan.project.model.vo.FileChunk;
 import com.xanqan.project.model.vo.FileInfo;
+import com.xanqan.project.model.vo.Home;
+import com.xanqan.project.model.vo.UserInfo;
 import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,19 @@ public class FileController {
                                                 @RequestParam("user") String user) {
         List<File> result = fileService.getFileList(path, JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "根据类型获取文件，分页")
+    @GetMapping("/getFileListByType")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Home> getFileListByType(@RequestParam("type") String type,
+                                                @RequestParam("page") Integer page,
+                                                @RequestParam("rows") Integer rows,
+                                                @RequestParam("user") String user) {
+        List<File> result = fileService.getFileListByType(type, page, rows, JSONUtil.toBean(user, User.class));
+        UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
+        Home home = new Home(userInfo, result);
+        return ResultUtils.success(home);
     }
 
     @Operation(summary = "获取文件夹大小")

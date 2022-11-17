@@ -24,6 +24,15 @@ public interface FileService {
     List<File> getFileList(String path, User user);
 
     /**
+     * 根据类型返回文件，分页
+     *
+     * @param path 路径
+     * @param user 用户信息
+     * @return 文件列表
+     */
+    List<File> getFileListByType(String type, Integer page, Integer rows, User user);
+
+    /**
      * 获取文件夹的总大小
      *
      * @param path       路径
@@ -160,4 +169,5 @@ public interface FileService {
      * @return 未上传的文件列表
      */
     File bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user);
+
 }

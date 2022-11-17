@@ -15,6 +15,9 @@ import com.xanqan.project.util.FileUtil;
 import com.xanqan.project.util.MinioUtil;
 import io.minio.GetObjectResponse;
 import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -70,6 +73,34 @@ public class FileServiceImpl implements FileService {
 
         // 获取路径下全部文件（包括文件夹）
         Query query = Query.query(Criteria.where("path").is(path));
+        return mongoTemplate.find(query, File.class, bucketName);
+    }
+
+    @Override
+    public List<File> getFileListByType(String type, Integer page, Integer rows, User user) {
+        // 校验
+        if (StrUtil.hasBlank(type)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (page < 1 && rows < 1) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为负");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+
+        Pageable pageable = PageRequest.of(page - 1, rows, Sort.by(Sort.Order.desc("name")));
+        Criteria criteria = Criteria.where("isFolder").is(0);
+        if ("photo".equals(type)) {
+            criteria.andOperator(Criteria.where("type").is("photo"));
+        } else if ("video".equals(type)) {
+            criteria.andOperator(Criteria.where("type").is("video"));
+        } else if ("audio".equals(type)) {
+            criteria.andOperator(Criteria.where("type").is("audio"));
+        } else if ("text".equals(type)) {
+            criteria.andOperator(Criteria.where("type").is("text"));
+        }
+        Query query = Query.query(criteria).with(pageable);
+
         return mongoTemplate.find(query, File.class, bucketName);
     }
 
@@ -352,7 +383,7 @@ public class FileServiceImpl implements FileService {
 
         //图片文件生成缩略图
         InputStream thumbnailIn = null;
-        if (fileUtil.isPhoto(file.getType())) {
+        if ("photo".equals(file.getType())) {
             try {
                 BufferedImage bufferedImage = Thumbnails.of(multipartFile.getInputStream()).size(200, 200).asBufferedImage();
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -421,7 +452,8 @@ public class FileServiceImpl implements FileService {
                 .and("isFolder").is(0));
         Update update = new Update()
                 .set("name", newName)
-                .set("type", fileUtil.findType(newName))
+                .set("type", fileUtil.findType(fileUtil.findContentType(newName)))
+                .set("contentType", fileUtil.findContentType(newName))
                 .set("modifyTime", new Date());
         mongoTemplate.updateFirst(query, update, bucketName);
         minioUtil.move(bucketName, path, path, oldName, newName);
@@ -580,12 +612,13 @@ public class FileServiceImpl implements FileService {
                 fileCompose.setName(fileName);
                 fileCompose.setPath(path);
                 fileCompose.setFileSize(Long.parseLong(Objects.requireNonNull(getObjectResponse.headers().get("Content-Length"))));
-                fileCompose.setType(fileUtil.findType(fileName));
+                fileCompose.setContentType(fileUtil.findContentType(fileName));
+                fileCompose.setType(fileUtil.findType(fileCompose.getContentType()));
                 fileCompose.setCreateTime(new Date());
                 fileCompose.setModifyTime(new Date());
                 fileCompose.setIsFolder(0);
                 BufferedImage bufferedImage = null;
-                if (fileUtil.isPhoto(fileCompose.getType())) {
+                if ("photo".equals(fileCompose.getType())) {
                     try {
                         bufferedImage = ImageIO.read(getObjectResponse);
                         fileCompose.setSize(bufferedImage.getWidth() + "*" + bufferedImage.getHeight());
@@ -606,7 +639,7 @@ public class FileServiceImpl implements FileService {
 
                 //图片文件生成缩略图
                 InputStream thumbnailIn = null;
-                if (fileUtil.isPhoto(fileCompose.getType())) {
+                if ("photo".equals(fileCompose.getType())) {
                     try {
                         BufferedImage thumbnail = Thumbnails.of(bufferedImage).size(200, 200).asBufferedImage();
                         ByteArrayOutputStream os = new ByteArrayOutputStream();
