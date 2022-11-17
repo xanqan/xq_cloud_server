@@ -47,6 +47,12 @@ public class File {
     private String type;
 
     /**
+     * 文件请求类型
+     */
+    @Field("contentType")
+    private String contentType;
+
+    /**
      * 创建时间
      */
     @Field("createTime")

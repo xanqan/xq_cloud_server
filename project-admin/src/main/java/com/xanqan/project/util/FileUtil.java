@@ -19,11 +19,11 @@ import java.util.*;
 @Component
 public class FileUtil {
 
-    private static final HashMap<String, String> VIEW_CONTENT_TYPE;
-    private static final Set<String> PHOTO;
-    private static final Set<String> VIDEO;
-    private static final Set<String> AUDIO;
-    private static final Set<String> TEXT;
+    public static final HashMap<String, String> VIEW_CONTENT_TYPE;
+    public static final Set<String> PHOTO;
+    public static final Set<String> VIDEO;
+    public static final Set<String> AUDIO;
+    public static final Set<String> TEXT;
 
     static {
         VIEW_CONTENT_TYPE = new HashMap<>();
@@ -49,22 +49,41 @@ public class FileUtil {
         TEXT.addAll(Arrays.asList(textType));
     }
 
-    /**
-     * 入口方法, 根据文件后缀再调用到对于的方法
-     *
-     * @param name 文件名
-     * @return 文件类型
-     */
-    public String findType(String name) {
+    public String findType(String contentType) {
+        if (PHOTO.contains(contentType)) {
+            return "photo";
+        } else if (VIDEO.contains(contentType)) {
+            return "video";
+        } else if (AUDIO.contains(contentType)) {
+            return "audio";
+        } else if (TEXT.contains(contentType)) {
+            return "text";
+        }
+        return null;
+    }
+
+    public String findContentType(String name) {
         String fileSuffix = name != null ? name.substring(name.lastIndexOf(".") + 1) : null;
         String contentType = VIEW_CONTENT_TYPE.get(fileSuffix);
         return contentType != null ? contentType : VIEW_CONTENT_TYPE.get("default");
     }
 
-
     public boolean isPhoto(String contentType) {
         return PHOTO.contains(contentType);
     }
+
+    public boolean isVideo(String contentType) {
+        return VIDEO.contains(contentType);
+    }
+
+    public boolean isAudio(String contentType) {
+        return AUDIO.contains(contentType);
+    }
+
+    public boolean isText(String contentType) {
+        return TEXT.contains(contentType);
+    }
+
 
     /**
      * 入口方法, 根据文件后缀再调用到对于的方法
@@ -100,7 +119,8 @@ public class FileUtil {
             file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
-            file.setType(this.findType(name));
+            file.setType("photo");
+            file.setContentType(this.findContentType(name));
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setSize(size);
@@ -128,7 +148,8 @@ public class FileUtil {
             file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
-            file.setType(this.findType(name));
+            file.setType("video");
+            file.setContentType(this.findContentType(name));
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setIsFolder(0);
@@ -156,7 +177,8 @@ public class FileUtil {
             file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
-            file.setType(this.findType(name));
+            file.setType("audio");
+            file.setContentType(this.findContentType(name));
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setIsFolder(0);
@@ -183,7 +205,8 @@ public class FileUtil {
             file.setName(name);
             file.setPath(path);
             file.setFileSize(fileSize);
-            file.setType(this.findType(name));
+            file.setType("text");
+            file.setContentType(this.findContentType(name));
             file.setCreateTime(new Date());
             file.setModifyTime(new Date());
             file.setIsFolder(0);

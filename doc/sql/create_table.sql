@@ -50,16 +50,21 @@ create table user_permission
     comment '用户权限对应表';
 
 # both set password 123456
-INSERT INTO user (name, password, size_max) VALUES ('demo0', '$2a$10$KrCaa8a0Hcig8kRWXYHakubmIjQCaE7SKU.Qwd/7gMnjiXWC1DT0i', 21474836480);
-INSERT INTO user (name, password) VALUES ('demo1', '$2a$10$GQkKx551nr7wQNwt2JTfjO5ayKCoFVpyHvNiyHXbG3iXxBd1GrP8q');
+INSERT INTO user (name, password, size_max)
+VALUES ('demo0', '$2a$10$KrCaa8a0Hcig8kRWXYHakubmIjQCaE7SKU.Qwd/7gMnjiXWC1DT0i', 21474836480);
+INSERT INTO user (name, password)
+VALUES ('demo1', '$2a$10$GQkKx551nr7wQNwt2JTfjO5ayKCoFVpyHvNiyHXbG3iXxBd1GrP8q');
 
-INSERT INTO permission (name) VALUES ('read');
-INSERT INTO permission (name) VALUES ('write');
+INSERT INTO permission (name)
+VALUES ('read');
+INSERT INTO permission (name)
+VALUES ('write');
 
-INSERT INTO user_permission (user_id, permission_id) VALUES (1, 1);
-INSERT INTO user_permission (user_id, permission_id) VALUES (1, 2);
-INSERT INTO user_permission (user_id, permission_id) VALUES (2, 1);
-
-
+INSERT INTO user_permission (user_id, permission_id)
+VALUES (1, 1);
+INSERT INTO user_permission (user_id, permission_id)
+VALUES (1, 2);
+INSERT INTO user_permission (user_id, permission_id)
+VALUES (2, 1);
 
 

@@ -201,7 +201,7 @@ public class MinioUtil {
                 sources.add(ComposeSource.builder().bucket(bucketName).object(sourcesObject).build());
             }
             Map<String, String> userMetadata = new HashMap<>(2);
-            userMetadata.put("Content-Type", fileUtil.findType(object));
+            userMetadata.put("Content-Type", fileUtil.findContentType(object));
             minioClient.composeObject(ComposeObjectArgs.builder().bucket(bucketName).object(object).sources(sources).extraHeaders(userMetadata).build());
             for (String sourcesObject : objects) {
                 minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(sourcesObject).build());
