@@ -4,6 +4,7 @@ import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.dto.File;
 import io.minio.*;
+import io.minio.http.Method;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -272,5 +273,25 @@ public class MinioUtil {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
         }
         return url + ROOT_DIRECTORY + bucketName + newObject;
+    }
+
+    /**
+     * 创建文件分享链接
+     *
+     * @param bucketName 存储桶名
+     * @param path       文件路径
+     * @param fileName   文件名
+     * @return 文件的可访问路径
+     */
+    public String getPresignedObjectUrl(String bucketName, String path, String fileName, Integer expire) {
+        String object = path.concat(ROOT_DIRECTORY).concat(fileName);
+        String url = "";
+        try {
+            url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder().method(Method.GET)
+                    .bucket(bucketName).object(object).expiry(60 * 60 * 24 * expire).build());
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, e.getMessage());
+        }
+        return url;
     }
 }

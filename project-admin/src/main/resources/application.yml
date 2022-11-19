@@ -74,3 +74,4 @@ secure:
       - /home/**
       - /user/login
       - /user/register
+      - /file/getShareUrl

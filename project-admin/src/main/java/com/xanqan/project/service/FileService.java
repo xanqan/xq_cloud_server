@@ -2,6 +2,7 @@ package com.xanqan.project.service;
 
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.dto.Share;
 import com.xanqan.project.model.vo.FileChunk;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,9 @@ public interface FileService {
     /**
      * 根据类型返回文件，分页
      *
-     * @param path 路径
+     * @param type 文件类型
+     * @param page 页码
+     * @param rows 每页数量
      * @param user 用户信息
      * @return 文件列表
      */
@@ -169,5 +172,44 @@ public interface FileService {
      * @return 未上传的文件列表
      */
     File bigFileUpload(String path, String chunkId, MultipartFile multipartFile, User user);
+
+    /**
+     * 获取文件分享链接
+     *
+     * @param path     文件路径
+     * @param fileName 文件名
+     * @param password 分享密码
+     * @param expire   超时时间（天）
+     * @param user     用户信息
+     * @return 文件的可访问路径
+     */
+    Share createShareUrl(String path, String fileName, String password, Integer expire, User user);
+
+
+    /**
+     * 获取文件分享链接
+     *
+     * @param id   分享id
+     * @param user 用户信息
+     * @return 文件的可访问路径
+     */
+    boolean removeShareUrl(String id, User user);
+
+    /**
+     * 获取用户全部分享链接
+     *
+     * @param user 用户信息
+     * @return 文件的可访问路径
+     */
+    List<Share> getShareUrlAll(User user);
+
+    /**
+     * 下载分享
+     *
+     * @param shareId  分享id
+     * @param password 分享密码
+     * @return 文件的可访问路径
+     */
+    Share getShareUrl(String shareId, String password);
 
 }

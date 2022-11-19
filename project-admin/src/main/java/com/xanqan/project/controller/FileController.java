@@ -5,6 +5,7 @@ import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.dto.Share;
 import com.xanqan.project.model.vo.FileChunk;
 import com.xanqan.project.model.vo.FileInfo;
 import com.xanqan.project.model.vo.Home;
@@ -190,6 +191,43 @@ public class FileController {
                                             @RequestParam("file") MultipartFile multipartFile,
                                             @RequestParam("user") String user) {
         File result = fileService.bigFileUpload(path, chunkId, multipartFile, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "获取文件分享链接")
+    @PostMapping("/createShareUrl")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Share> createShareUrl(@RequestParam("path") String path,
+                                              @RequestParam("fileName") String fileName,
+                                              @RequestParam("password") String password,
+                                              @RequestParam("expire") Integer expire,
+                                              @RequestParam("user") String user) {
+        Share result = fileService.createShareUrl(path, fileName, password, expire, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "获取文件分享链接")
+    @GetMapping("/getShareUrlAll")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<List<Share>> getShareUrlAll(@RequestParam("user") String user) {
+        List<Share> result = fileService.getShareUrlAll(JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "删除文件分享链接")
+    @DeleteMapping("/removeShareUrl")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> removeShareUrl(@RequestParam("id") String id,
+                                                @RequestParam("user") String user) {
+        boolean result = fileService.removeShareUrl(id, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "下载分享")
+    @GetMapping("/getShareUrl")
+    public BaseResponse<Share> getShareUrl(@RequestParam("shareId") String shareId,
+                                           @RequestParam("password") String password) {
+        Share result = fileService.getShareUrl(shareId, password);
         return ResultUtils.success(result);
     }
 }

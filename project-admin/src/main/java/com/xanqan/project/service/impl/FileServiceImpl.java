@@ -7,6 +7,7 @@ import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.dto.Share;
 import com.xanqan.project.model.vo.FileChunk;
 import com.xanqan.project.service.FileService;
 import com.xanqan.project.service.RedisService;
@@ -389,7 +390,7 @@ public class FileServiceImpl implements FileService {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(bufferedImage, "jpg", os);
                 thumbnailIn = new ByteArrayInputStream(os.toByteArray());
-                minioUtil.uploadImg(bucketName, insert.getId(), thumbnailIn);
+                minioUtil.uploadImg(bucketName, insert.getId().toString(), thumbnailIn);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -645,7 +646,7 @@ public class FileServiceImpl implements FileService {
                         ByteArrayOutputStream os = new ByteArrayOutputStream();
                         ImageIO.write(thumbnail, "jpg", os);
                         thumbnailIn = new ByteArrayInputStream(os.toByteArray());
-                        minioUtil.uploadImg(bucketName, insert.getId(), thumbnailIn);
+                        minioUtil.uploadImg(bucketName, insert.getId().toString(), thumbnailIn);
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
@@ -664,6 +665,94 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Override
+    public Share createShareUrl(String path, String fileName, String password, Integer expire, User user) {
+        // 校验
+        if (StrUtil.hasBlank(path, fileName)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        if (expire == null || expire < 1) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "过期时间错误");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+        String shareName = bucketName.concat("Share");
+
+        // 验证文件是否存在
+        this.isExist(bucketName, path, fileName);
+
+        String shareUrl = minioUtil.getPresignedObjectUrl(bucketName, path, fileName, expire);
+
+        Share share = new Share();
+        share.setUrl(shareUrl);
+        share.setPassword(password);
+        share.setName(fileName);
+        share.setPath(path);
+        share.setType(fileUtil.findType(fileUtil.findContentType(fileName)));
+        share.setExpire(new Date(System.currentTimeMillis() + expire * 24 * 60 * 60 * 1000L));
+
+        return mongoTemplate.insert(share, shareName);
+    }
+
+    @Override
+    public boolean removeShareUrl(String id, User user) {
+        // 校验
+        if (StrUtil.hasBlank(id)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+        String shareName = bucketName.concat("Share");
+
+        Query query = Query.query(Criteria.where("_id").is(id));
+        mongoTemplate.remove(query, shareName);
+        return true;
+    }
+
+    @Override
+    public List<Share> getShareUrlAll(User user) {
+        String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+        String shareName = bucketName.concat("Share");
+        List<Share> shares = mongoTemplate.findAll(Share.class, shareName);
+        Date date = new Date();
+        for (Share share : shares) {
+            if (date.after(share.getExpire())) {
+                Query query = Query.query(Criteria.where("_id").is(share.getId()));
+                mongoTemplate.remove(query, shareName);
+            }
+        }
+        return mongoTemplate.findAll(Share.class, shareName);
+    }
+
+    @Override
+    public Share getShareUrl(String shareId, String password) {
+        // 校验
+        if (StrUtil.hasBlank(shareId)) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
+        }
+        int index = shareId.lastIndexOf(".");
+        String bucketName = shareId.substring(0, index);
+        String shareName = bucketName.concat("Share");
+        String id = shareId.substring(index + 1);
+        Query query = Query.query(Criteria.where("_id").is(id));
+        List<Share> shares = mongoTemplate.findAll(Share.class, shareName);
+        Share share = null;
+        for (Share value : shares) {
+            if (value.getId().equals(id)) {
+                share = value;
+                break;
+            }
+        }
+        if (share == null) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "没有该分享");
+        }
+        Date date = new Date();
+        if (date.after(share.getExpire())) {
+            mongoTemplate.remove(query, shareName);
+            throw new BusinessException(ResultCode.FAILED, "该分享已到期");
+        }
+        return share;
+    }
 
     /**
      * 文件夹路径加工，用于后续遍历

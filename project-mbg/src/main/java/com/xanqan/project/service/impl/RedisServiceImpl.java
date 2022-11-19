@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,11 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public void setList(String key, List<String> shareUrls) {
+        stringRedisTemplate.opsForList().leftPushAll(key, shareUrls);
+    }
+
+    @Override
     public String get(String key) {
         return stringRedisTemplate.opsForValue().get(key);
     }
@@ -40,8 +46,13 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public boolean expire(String key, long expire) {
-        return Boolean.TRUE.equals(stringRedisTemplate.expire(key, expire, TimeUnit.SECONDS));
+    public List<String> getList(String key) {
+        return stringRedisTemplate.opsForList().range(key, 0, -1);
+    }
+
+    @Override
+    public boolean expire(String key, Integer expire) {
+        return Boolean.TRUE.equals(stringRedisTemplate.expire(key, expire, TimeUnit.DAYS));
     }
 
     @Override
@@ -52,6 +63,11 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void removeHashKey(String key, String hashKey) {
         stringRedisTemplate.opsForHash().delete(key, hashKey);
+    }
+
+    @Override
+    public void removeList(String key, String value) {
+        stringRedisTemplate.opsForList().remove(key, 1, value);
     }
 
     @Override
