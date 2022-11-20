@@ -38,7 +38,7 @@ public class PageInitController {
     public BaseResponse<Home> getFileList(@RequestParam("user") String user) {
         List<File> result = fileService.getFileList("/", JSONUtil.toBean(user, User.class));
         UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
-        Home home = new Home(userInfo, result);
+        Home home = new Home(userInfo, result, null);
         return ResultUtils.success(home);
     }
 

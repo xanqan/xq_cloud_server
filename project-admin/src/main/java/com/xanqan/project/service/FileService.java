@@ -187,7 +187,7 @@ public interface FileService {
 
 
     /**
-     * 获取文件分享链接
+     * 删除文件分享链接
      *
      * @param id   分享id
      * @param user 用户信息

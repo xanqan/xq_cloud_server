@@ -1,6 +1,7 @@
 package com.xanqan.project.model.vo;
 
 import com.xanqan.project.model.dto.File;
+import com.xanqan.project.model.dto.Share;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -24,5 +25,10 @@ public class Home {
      * 根目录文件（首页）
      */
     private List<File> files;
+
+    /**
+     * 分类链接
+     */
+    private List<Share> shares;
 
 }

@@ -6,10 +6,7 @@ import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.dto.File;
 import com.xanqan.project.model.dto.Share;
-import com.xanqan.project.model.vo.FileChunk;
-import com.xanqan.project.model.vo.FileInfo;
-import com.xanqan.project.model.vo.Home;
-import com.xanqan.project.model.vo.UserInfo;
+import com.xanqan.project.model.vo.*;
 import com.xanqan.project.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +49,7 @@ public class FileController {
                                                 @RequestParam("user") String user) {
         List<File> result = fileService.getFileListByType(type, page, rows, JSONUtil.toBean(user, User.class));
         UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
-        Home home = new Home(userInfo, result);
+        Home home = new Home(userInfo, result, null);
         return ResultUtils.success(home);
     }
 
@@ -197,24 +194,23 @@ public class FileController {
     @Operation(summary = "获取文件分享链接")
     @PostMapping("/createShareUrl")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Share> createShareUrl(@RequestParam("path") String path,
-                                              @RequestParam("fileName") String fileName,
-                                              @RequestParam("password") String password,
-                                              @RequestParam("expire") Integer expire,
+    public BaseResponse<Share> createShareUrl(@RequestBody ShareInfo share,
                                               @RequestParam("user") String user) {
-        Share result = fileService.createShareUrl(path, fileName, password, expire, JSONUtil.toBean(user, User.class));
-        return ResultUtils.success(result);
-    }
-
-    @Operation(summary = "获取文件分享链接")
-    @GetMapping("/getShareUrlAll")
-    @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<List<Share>> getShareUrlAll(@RequestParam("user") String user) {
-        List<Share> result = fileService.getShareUrlAll(JSONUtil.toBean(user, User.class));
+        Share result = fileService.createShareUrl(share.getPath(), share.getName(), share.getPassword(), share.getExpire(), JSONUtil.toBean(user, User.class));
         return ResultUtils.success(result);
     }
 
     @Operation(summary = "获取用户全部分享链接")
+    @GetMapping("/getShareUrlAll")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Home> getShareUrlAll(@RequestParam("user") String user) {
+        List<Share> result = fileService.getShareUrlAll(JSONUtil.toBean(user, User.class));
+        UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
+        Home home = new Home(userInfo, null, result);
+        return ResultUtils.success(home);
+    }
+
+    @Operation(summary = "删除分享链接")
     @DeleteMapping("/removeShareUrl")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> removeShareUrl(@RequestParam("id") String id,

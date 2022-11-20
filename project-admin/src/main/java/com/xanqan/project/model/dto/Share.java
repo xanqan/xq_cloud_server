@@ -35,7 +35,7 @@ public class Share {
     private String password;
 
     /**
-     * 道歉时间
+     * 到期时间
      */
     @Field("expire")
     private Date expire;

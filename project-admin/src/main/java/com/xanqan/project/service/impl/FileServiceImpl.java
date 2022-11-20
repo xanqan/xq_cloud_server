@@ -359,7 +359,6 @@ public class FileServiceImpl implements FileService {
         if (multipartFile.isEmpty() || multipartFile.getSize() <= 0) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "文件为空");
         }
-
         String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
 
         // 验证文件夹是否存在
