@@ -93,7 +93,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件夹删除")
-    @PostMapping("/deleteFolder")
+    @DeleteMapping("/deleteFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> deleteFolder(@RequestBody FileInfo fileInfo,
                                               @RequestParam("user") String user) {
@@ -102,7 +102,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件夹重命名")
-    @PostMapping("/reNameFolder")
+    @PutMapping("/reNameFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> reNameFolder(@RequestBody FileInfo fileInfo,
                                               @RequestParam("user") String user) {
@@ -111,7 +111,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件夹移动")
-    @PostMapping("/moveFolder")
+    @PutMapping("/moveFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> moveFolder(@RequestBody FileInfo fileInfo,
                                             @RequestParam("user") String user) {
@@ -120,7 +120,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件夹复制")
-    @PostMapping("/copyFolder")
+    @PutMapping("/copyFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> copyFolder(@RequestBody FileInfo fileInfo,
                                             @RequestParam("user") String user) {
@@ -139,7 +139,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件删除")
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> delete(@RequestBody FileInfo fileInfo,
                                         @RequestParam("user") String user) {
@@ -148,7 +148,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件重命名")
-    @PostMapping("/reName")
+    @PutMapping("/reName")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> reName(@RequestBody FileInfo fileInfo,
                                         @RequestParam("user") String user) {
@@ -157,7 +157,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件移动")
-    @PostMapping("/move")
+    @PutMapping("/move")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> move(@RequestBody FileInfo fileInfo,
                                       @RequestParam("user") String user) {
@@ -166,7 +166,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件复制")
-    @PostMapping("/copy")
+    @PutMapping("/copy")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> copy(@RequestBody FileInfo fileInfo,
                                       @RequestParam("user") String user) {
@@ -214,7 +214,7 @@ public class FileController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "删除文件分享链接")
+    @Operation(summary = "获取用户全部分享链接")
     @DeleteMapping("/removeShareUrl")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> removeShareUrl(@RequestParam("id") String id,
