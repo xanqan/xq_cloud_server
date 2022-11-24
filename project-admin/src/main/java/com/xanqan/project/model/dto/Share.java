@@ -28,6 +28,9 @@ public class Share {
     @Field("url")
     private String url;
 
+    @Field("userId")
+    private Integer userId;
+
     /**
      * 文件分享url
      */
