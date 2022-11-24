@@ -221,9 +221,8 @@ public class FileController {
 
     @Operation(summary = "下载分享")
     @GetMapping("/getShareUrl")
-    public BaseResponse<Share> getShareUrl(@RequestParam("shareId") String shareId,
-                                           @RequestParam("password") String password) {
-        Share result = fileService.getShareUrl(shareId, password);
+    public BaseResponse<Share> getShareUrl(@RequestParam("shareId") String shareId) {
+        Share result = fileService.getShareUrl(shareId);
         return ResultUtils.success(result);
     }
 }

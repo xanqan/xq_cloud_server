@@ -210,6 +210,6 @@ public interface FileService {
      * @param password 分享密码
      * @return 文件的可访问路径
      */
-    Share getShareUrl(String shareId, String password);
+    Share getShareUrl(String shareId);
 
 }

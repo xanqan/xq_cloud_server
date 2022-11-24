@@ -683,6 +683,7 @@ public class FileServiceImpl implements FileService {
         String shareUrl = minioUtil.getPresignedObjectUrl(bucketName, path, fileName, expire);
 
         Share share = new Share();
+        share.setUserId((Integer) user.getId());
         share.setUrl(shareUrl);
         share.setPassword(password);
         share.setName(fileName);
@@ -724,12 +725,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Share getShareUrl(String shareId, String password) {
+    public Share getShareUrl(String shareId) {
         // 校验
         if (StrUtil.hasBlank(shareId)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
         }
-        int index = shareId.lastIndexOf(".");
+        int index = shareId.lastIndexOf("_");
+        if (index < 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数错误");
+        }
         String bucketName = shareId.substring(0, index);
         String shareName = bucketName.concat("Share");
         String id = shareId.substring(index + 1);
