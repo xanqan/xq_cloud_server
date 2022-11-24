@@ -4,15 +4,17 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 用户表
+ *
  * @TableName user
  */
-@TableName(value ="user")
+@TableName(value = "user")
 @Data
 public class User implements Serializable {
     /**
@@ -52,7 +54,7 @@ public class User implements Serializable {
     private String avatar;
 
     /**
-     * 储存空间大小（GB） 0-不限制
+     * 储存空间大小（byte） 0-不限制
      */
     private Long sizeMax;
 
@@ -60,6 +62,11 @@ public class User implements Serializable {
      * 已使用大小（byte）
      */
     private Long sizeUse;
+
+    /**
+     * 用户申请修改容量 0为不申请
+     */
+    private Long modifySize;
 
     /**
      * 用户启用状态 0-未启用 1-启用
@@ -80,6 +87,11 @@ public class User implements Serializable {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 管理员标识 0-用户 1-管理员
+     */
+    private Integer isAdmin;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

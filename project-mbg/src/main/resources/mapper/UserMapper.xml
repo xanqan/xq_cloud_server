@@ -5,7 +5,7 @@
 <mapper namespace="com.xanqan.project.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.xanqan.project.model.domain.User">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="id" jdbcType="OTHER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
@@ -14,17 +14,19 @@
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
             <result property="sizeMax" column="size_max" jdbcType="BIGINT"/>
             <result property="sizeUse" column="size_use" jdbcType="BIGINT"/>
+            <result property="modifySize" column="modify_size" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="lastLogin" column="last_login" jdbcType="TIMESTAMP"/>
             <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="isAdmin" column="is_admin" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,name,password,
         email,phone,nick_name,
         avatar,size_max,size_use,
-        status,last_login,modify_time,
-        create_time
+        modify_size,status,last_login,
+        modify_time,create_time,is_admin
     </sql>
 </mapper>
