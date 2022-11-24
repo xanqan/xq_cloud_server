@@ -1,10 +1,12 @@
 package com.xanqan.project.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.xanqan.project.common.BaseResponse;
 import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
+import com.xanqan.project.model.vo.UserInfo;
 import com.xanqan.project.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,8 +39,8 @@ public class UserController {
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")
-    public BaseResponse<Integer> register(@RequestBody User user) {
-        int result = userService.userRegister(user.getName(), user.getPassword());
+    public BaseResponse<Boolean> register(@RequestBody User user) {
+        boolean result = userService.userRegister(user.getName(), user.getPassword());
         return ResultUtils.success("注册成功", result);
     }
 
@@ -47,6 +49,23 @@ public class UserController {
     public BaseResponse<String> login(@RequestBody User user) {
         String token = userService.userLogin(user.getName(), user.getPassword());
         return ResultUtils.success("登录成功", token);
+    }
+
+    @Operation(summary = "获取用户信息")
+    @GetMapping("/getUserInfo")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<UserInfo> getUserInfo(@RequestParam("user") String user) {
+        UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(userInfo);
+    }
+
+    @Operation(summary = "用户申请增加容量")
+    @GetMapping("/applyModifyCapacity")
+    @PreAuthorize("hasAnyAuthority('read', 'write')")
+    public BaseResponse<Boolean> applyModifyCapacity(@RequestParam("modifySize") Long modifySize,
+                                                     @RequestParam("user") String user) {
+        boolean result = userService.applyModifyCapacity(modifySize, JSONUtil.toBean(user, User.class));
+        return ResultUtils.success(result);
     }
 
     @Operation(summary = "权限测试")

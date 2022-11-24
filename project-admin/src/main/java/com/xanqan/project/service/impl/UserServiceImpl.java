@@ -9,7 +9,9 @@ import com.xanqan.project.mapper.PermissionMapper;
 import com.xanqan.project.mapper.UserMapper;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
+import com.xanqan.project.model.domain.UserPermission;
 import com.xanqan.project.security.util.JwtTokenUtil;
+import com.xanqan.project.service.UserPermissionService;
 import com.xanqan.project.service.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,6 +41,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserDetailsService userDetailsService;
     @Resource
     private JwtTokenUtil jwtTokenUtil;
+    @Resource
+    private UserPermissionService userPermissionService;
 
     /**
      * 用户账号最小位数
@@ -63,7 +67,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public int userRegister(String userName, String password) {
+    public boolean userRegister(String userName, String password) {
         // 校验
         if (StrUtil.hasBlank(userName, password)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -94,11 +98,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         user.setName(userName);
         user.setPassword(encodePassword);
+        user.setSizeMax(5242880L);
         boolean saveResult = this.save(user);
         if (!saveResult) {
             throw new BusinessException(ResultCode.FAILED, "用户插入失败");
         }
-        return user.getId();
+        UserPermission userPermission = new UserPermission();
+        userPermission.setUserId((Integer) user.getId());
+        userPermission.setPermissionId(1);
+        userPermissionService.save(userPermission);
+        return true;
     }
 
     @Override
@@ -134,6 +143,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         return jwtTokenUtil.generateToken(userDetails);
+    }
+
+    @Override
+    public boolean applyModifyCapacity(Long modifySize, User user) {
+        if (modifySize < 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "不能申请负数");
+        }
+        if (modifySize < user.getSizeUse() && modifySize != 0) {
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "不能低于已使用容量");
+        }
+
+        user.setModifySize(modifySize);
+        this.updateById(user);
+        return true;
     }
 
 }

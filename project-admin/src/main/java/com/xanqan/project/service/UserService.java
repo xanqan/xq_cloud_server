@@ -28,8 +28,7 @@ public interface UserService extends IService<User> {
      * @param password 用户密码
      * @return 新用户 id
      */
-    int userRegister(String userName, String password);
-
+    boolean userRegister(String userName, String password);
 
     /**
      * 用户登录
@@ -39,4 +38,13 @@ public interface UserService extends IService<User> {
      * @return token
      */
     String userLogin(String userName, String password);
+
+    /**
+     * 用户申请增加容量
+     *
+     * @param modifySize 修改的值
+     * @param user       用户信息
+     * @return 申请成功
+     */
+    boolean applyModifyCapacity(Long modifySize, User user);
 }
