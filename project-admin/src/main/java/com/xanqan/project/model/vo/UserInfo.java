@@ -13,7 +13,7 @@ public class UserInfo {
     /**
      * 自增id
      */
-    private Integer id;
+    private Object id;
 
     /**
      * 登录用户名
@@ -40,6 +40,16 @@ public class UserInfo {
      */
     private Long sizeUse;
 
+    /**
+     * 用户申请修改容量 0为不申请
+     */
+    private Long modifySize;
+
+    /**
+     * 管理员标识
+     */
+    private Integer isAdmin;
+
     public UserInfo(User user) {
         this.id = user.getId();
         this.name = user.getName();
@@ -47,5 +57,7 @@ public class UserInfo {
         this.avatar = user.getNickName();
         this.sizeMax = user.getSizeMax();
         this.sizeUse = user.getSizeUse();
+        this.modifySize = user.getModifySize();
+        this.isAdmin = user.getIsAdmin();
     }
 }
