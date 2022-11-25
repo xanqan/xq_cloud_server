@@ -35,11 +35,20 @@ public class PageInitController {
     @Operation(summary = "主页数据初始化")
     @GetMapping("/home")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
-    public BaseResponse<Home> getFileList(@RequestParam("user") String user) {
+    public BaseResponse<Home> home(@RequestParam("user") String user) {
         List<File> result = fileService.getFileList("/", JSONUtil.toBean(user, User.class));
         UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
         Home home = new Home(userInfo, result, null);
         return ResultUtils.success(home);
     }
 
+    @Operation(summary = "管理员主页初始化")
+    @GetMapping("/admin")
+    @PreAuthorize("hasAnyAuthority('admin')")
+    public BaseResponse<Home> admin(@RequestParam("user") String user) {
+        List<File> result = fileService.getAllFile();
+        UserInfo userInfo = new UserInfo(JSONUtil.toBean(user, User.class));
+        Home home = new Home(userInfo, result, null);
+        return ResultUtils.success(home);
+    }
 }
