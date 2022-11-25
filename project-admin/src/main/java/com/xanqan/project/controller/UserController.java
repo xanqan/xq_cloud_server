@@ -6,6 +6,7 @@ import com.xanqan.project.common.ResultCode;
 import com.xanqan.project.common.ResultUtils;
 import com.xanqan.project.exception.BusinessException;
 import com.xanqan.project.model.domain.User;
+import com.xanqan.project.model.vo.LoginVo;
 import com.xanqan.project.model.vo.UserInfo;
 import com.xanqan.project.service.UserService;
 import io.swagger.annotations.Api;
@@ -46,9 +47,9 @@ public class UserController {
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public BaseResponse<String> login(@RequestBody User user) {
-        String token = userService.userLogin(user.getName(), user.getPassword());
-        return ResultUtils.success("登录成功", token);
+    public BaseResponse<LoginVo> login(@RequestBody User user) {
+        LoginVo loginVo = userService.userLogin(user.getName(), user.getPassword());
+        return ResultUtils.success("登录成功", loginVo);
     }
 
     @Operation(summary = "获取用户信息")

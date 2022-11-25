@@ -3,6 +3,7 @@ package com.xanqan.project.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
+import com.xanqan.project.model.vo.LoginVo;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public interface UserService extends IService<User> {
      * @param password 用户密码
      * @return token
      */
-    String userLogin(String userName, String password);
+    LoginVo userLogin(String userName, String password);
 
     /**
      * 用户申请增加容量

@@ -10,13 +10,14 @@ import com.xanqan.project.mapper.UserMapper;
 import com.xanqan.project.model.domain.Permission;
 import com.xanqan.project.model.domain.User;
 import com.xanqan.project.model.domain.UserPermission;
+import com.xanqan.project.model.vo.LoginVo;
+import com.xanqan.project.security.model.UserSecurity;
 import com.xanqan.project.security.util.JwtTokenUtil;
 import com.xanqan.project.service.UserPermissionService;
 import com.xanqan.project.service.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -111,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public String userLogin(String userName, String password) {
+    public LoginVo userLogin(String userName, String password) {
         // 校验
         if (StrUtil.hasBlank(userName, password)) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数为空");
@@ -129,7 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 对密码
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+        UserSecurity userDetails = (UserSecurity) userDetailsService.loadUserByUsername(userName);
         if (!userDetails.isEnabled()) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "用户已禁用");
         }
@@ -141,8 +142,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         // 将authenticationToken放入spring security全局中
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-        return jwtTokenUtil.generateToken(userDetails);
+        LoginVo loginVo = new LoginVo();
+        loginVo.setToken(jwtTokenUtil.generateToken(userDetails));
+        loginVo.setIsAdmin(userDetails.getUser().getIsAdmin());
+        return loginVo;
     }
 
     @Override
