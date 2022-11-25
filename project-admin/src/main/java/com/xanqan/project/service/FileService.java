@@ -212,4 +212,11 @@ public interface FileService {
      */
     Share getShareUrl(String shareId);
 
+    /**
+     * 获取所有文件(根据顺序排序)
+     *
+     * @return 所有文件
+     */
+    List<File> getAllFile();
+
 }

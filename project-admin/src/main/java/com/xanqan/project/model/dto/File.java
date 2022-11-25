@@ -46,6 +46,9 @@ public class File {
     @Field("type")
     private String type;
 
+    @Field("bucketName")
+    private String bucketName;
+
     /**
      * 文件请求类型
      */

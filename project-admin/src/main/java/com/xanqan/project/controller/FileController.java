@@ -90,7 +90,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件夹删除")
-    @DeleteMapping("/deleteFolder")
+    @PostMapping("/deleteFolder")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> deleteFolder(@RequestBody FileInfo fileInfo,
                                               @RequestParam("user") String user) {
@@ -136,7 +136,7 @@ public class FileController {
     }
 
     @Operation(summary = "文件删除")
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> delete(@RequestBody FileInfo fileInfo,
                                         @RequestParam("user") String user) {
@@ -211,7 +211,7 @@ public class FileController {
     }
 
     @Operation(summary = "删除分享链接")
-    @DeleteMapping("/removeShareUrl")
+    @PostMapping("/removeShareUrl")
     @PreAuthorize("hasAnyAuthority('read', 'write')")
     public BaseResponse<Boolean> removeShareUrl(@RequestParam("id") String id,
                                                 @RequestParam("user") String user) {

@@ -376,6 +376,7 @@ public class FileServiceImpl implements FileService {
         }
 
         // 上传文件, 更新容量
+        file.setBucketName(bucketName);
         File insert = mongoTemplate.insert(file, bucketName);
         user.setSizeUse(file.getFileSize() + user.getSizeUse());
         minioUtil.upload(bucketName, insert, multipartFile);
@@ -611,6 +612,7 @@ public class FileServiceImpl implements FileService {
                 File fileCompose = new File();
                 fileCompose.setName(fileName);
                 fileCompose.setPath(path);
+                fileCompose.setBucketName(bucketName);
                 fileCompose.setFileSize(Long.parseLong(Objects.requireNonNull(getObjectResponse.headers().get("Content-Length"))));
                 fileCompose.setContentType(fileUtil.findContentType(fileName));
                 fileCompose.setType(fileUtil.findType(fileCompose.getContentType()));
@@ -755,6 +757,20 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(ResultCode.FAILED, "该分享已到期");
         }
         return share;
+    }
+
+    @Override
+    public List<File> getAllFile() {
+        List<User> users = userService.list();
+        List<File> files = new ArrayList<>();
+        for (User user : users) {
+            String bucketName = BUCKET_NAME_PREFIX + user.getId().toString();
+            Query query = Query.query(Criteria.where("isFolder").is(0));
+            List<File> list = mongoTemplate.find(query, File.class, bucketName);
+            files.addAll(list);
+        }
+        files.sort((f1, f2) -> f2.getCreateTime().compareTo(f1.getCreateTime()));
+        return files;
     }
 
     /**
